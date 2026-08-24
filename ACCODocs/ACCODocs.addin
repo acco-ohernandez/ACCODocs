@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Text>ACCODocs - Command 1</Text>
+    <Description>Some description</Description>
+    <Assembly>ACCODocs\ACCODocs.dll</Assembly>
+    <FullClassName>ACCODocs.Command1</FullClassName>
+    <ClientId>506094e4-4de3-4e56-b855-567e794452ee</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Command">
+    <Text>ACCODocs - Command 2</Text>
+    <Description>Some description</Description>
+    <Assembly>ACCODocs\ACCODocs.dll</Assembly>
+    <FullClassName>ACCODocs.Command2</FullClassName>
+    <ClientId>fea7fe81-3203-49bb-ab2a-3c4fb24ba3cf</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Application">
+    <Name>ACCODocs</Name>
+    <Assembly>ACCODocs\ACCODocs.dll</Assembly>
+    <FullClassName>ACCODocs.App</FullClassName>
+    <ClientId>3d819d1f-ac7b-419b-bf61-a38ab0a5ae9d</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+</RevitAddIns>
