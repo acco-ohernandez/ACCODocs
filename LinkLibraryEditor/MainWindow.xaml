@@ -1,0 +1,131 @@
+<Window x:Class="LinkLibraryEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ACCO Link Library Editor"
+        Width="960" Height="640"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8">
+            <Button Content="Open..." Padding="10,4" Margin="0,0,6,0" Click="BtnOpen_Click"/>
+            <Button Content="Save" Padding="10,4" Margin="0,0,16,0" Click="BtnSave_Click"
+                    ToolTip="Validates, bumps the revision, and writes atomically"/>
+            <Button Content="Add Group" Padding="10,4" Margin="0,0,6,0" Click="BtnAddGroup_Click"/>
+            <Button Content="Add Link" Padding="10,4" Margin="0,0,6,0" Click="BtnAddLink_Click"/>
+            <Button Content="Delete" Padding="10,4" Margin="0,0,16,0" Click="BtnDelete_Click"/>
+            <Button Content="Validate" Padding="10,4" Click="BtnValidate_Click"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="8,0,8,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="6"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Library tree -->
+            <TreeView Grid.Column="0"
+                      x:Name="TreeMain"
+                      SelectedItemChanged="TreeMain_SelectedItemChanged">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Title}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGroup}" Value="True">
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding Kind, StringFormat=' ({0})'}"
+                                       Foreground="Gray" FontSize="10" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="Gray"/>
+                                        <Setter Property="FontSize" Value="10"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGroup}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+
+            <!-- Details panel -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="PanelDetails" Margin="10,0,0,0" IsEnabled="False">
+
+                    <TextBlock Text="Id (permanent — auto-generated, never editable)" Margin="0,0,0,2" Foreground="Gray"/>
+                    <TextBox x:Name="TxtId" IsReadOnly="True" Background="#EEEEEE" Padding="4,3" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Title" Margin="0,0,0,2"/>
+                    <TextBox x:Name="TxtTitle" Padding="4,3" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Description" Margin="0,0,0,2"/>
+                    <TextBox x:Name="TxtDescription" Padding="4,3" Margin="0,0,0,8"
+                             AcceptsReturn="True" MinHeight="44" TextWrapping="Wrap"/>
+
+                    <StackPanel x:Name="PanelLinkFields">
+                        <TextBlock Text="Kind" Margin="0,0,0,2"/>
+                        <ComboBox x:Name="CmbKind" Margin="0,0,0,8">
+                            <ComboBoxItem Content="url"/>
+                            <ComboBoxItem Content="file"/>
+                            <ComboBoxItem Content="folder"/>
+                            <ComboBoxItem Content="mailto"/>
+                            <ComboBoxItem Content="video"/>
+                            <ComboBoxItem Content="command"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Target (URL / UNC path / mailto / Revit command id)" Margin="0,0,0,2"/>
+                        <TextBox x:Name="TxtTarget" Padding="4,3" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Tags (from the controlled vocabulary)" Margin="0,0,0,2"/>
+                        <ItemsControl x:Name="ListTags" Margin="0,0,0,8">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"
+                                              Margin="0,2,10,2"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Revit versions (comma-separated, empty = all versions)" Margin="0,0,0,2"/>
+                        <TextBox x:Name="TxtVersions" Padding="4,3" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Owner (email)" Margin="0,0,0,2"/>
+                        <TextBox x:Name="TxtOwner" Padding="4,3" Margin="0,0,0,8"/>
+                    </StackPanel>
+
+                    <Button x:Name="BtnApply" Content="Apply Changes" Padding="10,4"
+                            HorizontalAlignment="Left" Click="BtnApply_Click"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="2" x:Name="TxtStatus" Margin="8" Foreground="Gray"
+                   Text="Open a LinkLibrary.master.json to begin."/>
+    </Grid>
+</Window>

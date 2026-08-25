@@ -1,9 +1,10 @@
 # ACCO Revit Link Library — Design Spec
 
-**Status:** design locked, not yet implemented
-**DEV Target solution:** `BTT_ACCORevit-Ribbons` (`C:\Visual Studio Files\ACCODocs`)
-**DEV entry file:** `BTT_ACCORevit-Ribbons` (`C:\Visual Studio Files\ACCODocs\ACCODocs\Cmd_ACCODocs.cs"`)
-**Target solution:** `BTT_ACCORevit-Ribbons` (`C:\Visual Studio Files\BTT_ACCORevit-Ribbons`)
+**Status:** design locked — **implemented in the DEV sandbox 2026-08-24** (all build-order phases
+0–7; see §15 for deltas and `LinkLibrary_DEV_Plan.md` for status/port checklist). Port to
+production not started.
+**DEV solution:** `C:\Visual Studio Files\ACCODocs` (`ACCODocs.slnx`)
+**Production target solution:** `BTT_ACCORevit-Ribbons` (`C:\Visual Studio Files\BTT_ACCORevit-Ribbons`)
 **Author:** Orlando
 **Date:** 2026-08-24
 
@@ -360,3 +361,43 @@ Build in this order. Do not skip phase 0.
   hundreds of project models, makes central URL updates impossible, and dies when the model gets archived.
   Company reference documentation and project-specific annotation are different kinds of data and want different homes.
 - No live selection tracking. See section 8.
+
+---
+
+## 15. Implementation deltas (added 2026-08-24, after dev implementation)
+
+The design above stands. These are the places where the dev implementation deliberately extended
+or deviated from it — carry them into the production port.
+
+1. **One ribbon button.** The add-in exposes exactly one button ("ACCO Docs") that toggles the
+   pane; ALL other UI lives inside the pane (Orlando's rule, supersedes any reading of §7 that
+   implies more buttons).
+2. **Pane starts closed.** Registered panes come up visible; the registrar hides the pane on the
+   first `ViewActivated` of the session (hiding earlier — e.g. `ApplicationInitialized` — is
+   overridden by Revit's layout restore).
+3. **Node class is `LibraryNode`, not `LinkNode`** — `Autodesk.Revit.DB.LinkNode` collides under
+   the solution-wide Revit global usings.
+4. **Config gained three keys** (all with compiled-in defaults, so old configs stay valid):
+   - `suggestionMailMethod`: `"gmail"` (Gmail compose URL — ACCO is a Google Workspace shop;
+     plain `mailto:` opened an EMPTY browser draft) or `"mailto"` (default).
+   - `suggestionSubjectPrefix` (default `[ACCO Revit Link Library]`): subjects are
+     `<prefix> Suggestion: <title>` so admins can filter/label suggestion mail.
+5. **"Suggest a link" is a dialog**, not a bare mailto — machines without a default mail client
+   made the button look dead. Offers Open-in-Mail AND Copy-to-Clipboard.
+6. **Search scope extended (§7):** the Library-tab search covers the master tree AND the user's
+   own links (breadcrumbed "My Links > ..."), and matches the link `target` too so a domain query
+   ("accoes.com") works. The My Links tab has its own search scoped to favorites/recents/user links.
+7. **Master editing is a GUI**, not raw JSON: the standalone `LinkLibraryEditor` WPF app enforces
+   permanent auto-generated ids, vocabulary-checkbox tags, auto revision bump, atomic writes, and
+   validation. Recommended §12-Q3 answer: ConTech team edits via the editor; everyone else uses
+   Suggest a link.
+8. **Deep link (§11) signature:** `LinkLibrary_Pane.ShowLink(UIApplication uiapp, string linkId)` —
+   a `UIApplication` argument was unavoidable for resolving the pane.
+9. **Dead-link checker limitation:** HEAD probes catch hard failures only; a lapsed domain that
+   redirects to a parking page (HTTP 200) is NOT flagged — e.g. The Building Coder's typepad URL
+   currently redirects to a networksolutions page. Possible future upgrade: flag final-redirect
+   domains that differ from the stored one.
+10. **WPF-in-Revit lessons** (full details in the DEV plan): template bindings need properties,
+    not fields; set explicit Background+Foreground (dark theme renders unstyled template text
+    black-on-black); alias WPF control names because the template enables WinForms; marshal
+    post-`await` UI work through the `Dispatcher` when the pane is built during `OnStartup`.

@@ -16,4 +16,20 @@
     <BuildType Name="Release R26" />
   </Configurations>
   <Project Path="ACCODocs/ACCODocs.csproj" />
+  <Project Path="LinkLibraryEditor/LinkLibraryEditor.csproj">
+    <BuildType Solution="Debug R20|*" Project="Debug" />
+    <BuildType Solution="Debug R21|*" Project="Debug" />
+    <BuildType Solution="Debug R22|*" Project="Debug" />
+    <BuildType Solution="Debug R23|*" Project="Debug" />
+    <BuildType Solution="Debug R24|*" Project="Debug" />
+    <BuildType Solution="Debug R25|*" Project="Debug" />
+    <BuildType Solution="Debug R26|*" Project="Debug" />
+    <BuildType Solution="Release R20|*" Project="Release" />
+    <BuildType Solution="Release R21|*" Project="Release" />
+    <BuildType Solution="Release R22|*" Project="Release" />
+    <BuildType Solution="Release R23|*" Project="Release" />
+    <BuildType Solution="Release R24|*" Project="Release" />
+    <BuildType Solution="Release R25|*" Project="Release" />
+    <BuildType Solution="Release R26|*" Project="Release" />
+  </Project>
 </Solution>

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "revision": 3,
+  "revisionDate": "2026-08-24",
+  "tagVocabulary": {
+    "discipline": ["Mechanical", "Plumbing", "Piping", "Sheetmetal", "Electrical", "Structural", "General"],
+    "category": ["OST_DuctCurves", "OST_PipeCurves", "OST_MechanicalEquipment", "OST_PipeFitting"],
+    "topic": ["Standards", "Training", "Troubleshooting", "Content", "Workflow"]
+  },
+  "groups": [
+    {
+      "id": "acco.standards",
+      "title": "ACCO Standards",
+      "children": [
+        {
+          "id": "acco.standards.piping",
+          "title": "Piping",
+          "children": [
+            {
+              "id": "acco.standards.piping.hangers",
+              "title": "Pipe Hanger Standards",
+              "description": "Approved hanger types, spacing, and detailing rules.",
+              "kind": "url",
+              "target": "https://www.accoes.com",
+              "tags": ["Piping", "OST_PipeCurves", "Standards"],
+              "added": "2026-08-01",
+              "updated": "2026-08-15",
+              "owner": "ohernandez@accoes.com"
+            },
+            {
+              "id": "acco.standards.piping.welding",
+              "title": "Welding Procedures (2025+ only)",
+              "description": "Fixture exercising the revitVersions filter — must be hidden in Revit 2023/2024.",
+              "kind": "url",
+              "target": "https://www.accoes.com",
+              "tags": ["Piping", "Standards"],
+              "revitVersions": [2025, 2026, 2027],
+              "added": "2026-08-20"
+            }
+          ]
+        },
+        {
+          "id": "acco.standards.sheetmetal.smacna",
+          "title": "SMACNA Duct Standards",
+          "description": "Duct construction standards quick reference.",
+          "kind": "file",
+          "target": "\\\\server\\share\\standards\\smacna.pdf",
+          "tags": ["Sheetmetal", "OST_DuctCurves", "Standards"],
+          "added": "2026-07-01"
+        }
+      ]
+    },
+    {
+      "id": "revit.reference",
+      "title": "Revit Reference",
+      "children": [
+        {
+          "id": "revit.reference.docs",
+          "title": "Documentation",
+          "children": [
+            {
+              "id": "revit.reference.docs.help2025",
+              "title": "Revit 2025 Help",
+              "description": "Official Autodesk Revit 2025 online help.",
+              "kind": "url",
+              "target": "https://help.autodesk.com/view/RVT/2025/ENU/",
+              "tags": ["General", "Training"],
+              "revitVersions": [2025],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.docs.help2026",
+              "title": "Revit 2026 Help",
+              "description": "Official Autodesk Revit 2026 online help.",
+              "kind": "url",
+              "target": "https://help.autodesk.com/view/RVT/2026/ENU/",
+              "tags": ["General", "Training"],
+              "revitVersions": [2026],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.docs.support",
+              "title": "Autodesk Revit Support",
+              "description": "Autodesk technical support, hotfixes, and known issues for Revit.",
+              "kind": "url",
+              "target": "https://www.autodesk.com/support/technical/product/revit",
+              "tags": ["General", "Troubleshooting"],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.docs.shortcuts",
+              "title": "Revit Keyboard Shortcuts",
+              "description": "Official keyboard shortcut guide.",
+              "kind": "url",
+              "target": "https://www.autodesk.com/shortcuts/revit",
+              "tags": ["General", "Training", "Workflow"],
+              "added": "2026-08-24"
+            }
+          ]
+        },
+        {
+          "id": "revit.reference.dev",
+          "title": "Developer",
+          "children": [
+            {
+              "id": "revit.reference.dev.apidocs",
+              "title": "Revit API Docs",
+              "description": "Searchable Revit API documentation for every version (revitapidocs.com).",
+              "kind": "url",
+              "target": "https://www.revitapidocs.com/",
+              "tags": ["General", "Content"],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.dev.buildingcoder",
+              "title": "The Building Coder",
+              "description": "Jeremy Tammik's Revit API blog — the de facto API knowledge base.",
+              "kind": "url",
+              "target": "https://thebuildingcoder.typepad.com/",
+              "tags": ["General", "Troubleshooting", "Content"],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.dev.unitscommand",
+              "title": "Project Units (command demo)",
+              "description": "Fixture exercising the 'command' kind — fires Revit's Project Units dialog via PostCommand.",
+              "kind": "command",
+              "target": "ID_SETTINGS_UNITS",
+              "tags": ["General", "Workflow"],
+              "added": "2026-08-24"
+            },
+            {
+              "id": "revit.reference.dev.revitlookup",
+              "title": "RevitLookup",
+              "description": "Interactive Revit database exploration tool (GitHub).",
+              "kind": "url",
+              "target": "https://github.com/jeremytammik/RevitLookup",
+              "tags": ["General", "Content", "Workflow"],
+              "added": "2026-08-24"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acco.training",
+      "title": "Training",
+      "children": [
+        {
+          "id": "acco.training.revit-basics",
+          "title": "Revit Basics Videos",
+          "description": "Onboarding video series.",
+          "kind": "video",
+          "target": "https://www.accoes.com",
+          "tags": ["General", "Training"],
+          "added": "2026-06-15"
+        },
+        {
+          "id": "acco.training.who-to-ask",
+          "title": "Ask the ConTech Team",
+          "description": "Fixture exercising the mailto kind.",
+          "kind": "mailto",
+          "target": "mailto:ohernandez@accoes.com",
+          "tags": ["General", "Troubleshooting"],
+          "added": "2026-08-24"
+        }
+      ]
+    }
+  ]
+}

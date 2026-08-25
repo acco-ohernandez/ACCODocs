@@ -1,0 +1,13 @@
+{
+  "configVersion": 1,
+  "masterLibraryPath": "C:\\Visual Studio Files\\ACCODocs\\TestData\\LinkLibrary.master.json",
+  "localCacheFolder": "%PROGRAMDATA%\\ACCO\\RevitLinkLibrary\\cache",
+  "userLibraryFolder": "%LOCALAPPDATA%\\ACCO\\RevitLinkLibrary",
+  "telemetryFolder": "%PROGRAMDATA%\\ACCO\\RevitLinkLibrary\\usage",
+  "suggestionRecipient": "mailto:ohernandez@accoes.com",
+  "suggestionMailMethod": "gmail",
+  "suggestionSubjectPrefix": "[ACCO Link Library]",
+  "refreshCheckMinutes": 60,
+  "newBadgeDays": 14,
+  "enableTelemetry": true
+}
