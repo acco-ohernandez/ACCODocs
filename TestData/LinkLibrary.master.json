@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 3,
+  "revision": 4,
   "revisionDate": "2026-08-24",
   "tagVocabulary": {
     "discipline": ["Mechanical", "Plumbing", "Piping", "Sheetmetal", "Electrical", "Structural", "General"],
@@ -121,15 +121,6 @@
               "added": "2026-08-24"
             },
             {
-              "id": "revit.reference.dev.unitscommand",
-              "title": "Project Units (command demo)",
-              "description": "Fixture exercising the 'command' kind — fires Revit's Project Units dialog via PostCommand.",
-              "kind": "command",
-              "target": "ID_SETTINGS_UNITS",
-              "tags": ["General", "Workflow"],
-              "added": "2026-08-24"
-            },
-            {
               "id": "revit.reference.dev.revitlookup",
               "title": "RevitLookup",
               "description": "Interactive Revit database exploration tool (GitHub).",
@@ -139,6 +130,75 @@
               "added": "2026-08-24"
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "revit.commands",
+      "title": "Revit Commands",
+      "children": [
+        {
+          "id": "revit.commands.units",
+          "title": "Project Units",
+          "description": "Opens Revit's Project Units dialog (UN).",
+          "kind": "command",
+          "target": "ID_SETTINGS_UNITS",
+          "tags": ["General", "Workflow"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.purge",
+          "title": "Purge Unused",
+          "description": "Opens Purge Unused to remove unused families, types, and styles — run before sharing or archiving a model.",
+          "kind": "command",
+          "target": "ID_PURGE_UNUSED",
+          "tags": ["General", "Workflow"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.warnings",
+          "title": "Review Warnings",
+          "description": "Opens the model warnings list — a quick health check on any project.",
+          "kind": "command",
+          "target": "ID_REVIEW_WARNINGS",
+          "tags": ["General", "Troubleshooting"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.materials",
+          "title": "Materials",
+          "description": "Opens the Materials browser/editor.",
+          "kind": "command",
+          "target": "ID_SETTINGS_MATERIALS",
+          "tags": ["General", "Content"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.worksets",
+          "title": "Worksets",
+          "description": "Opens the Worksets dialog (workshared models only).",
+          "kind": "command",
+          "target": "ID_WORKSETS",
+          "tags": ["General", "Workflow"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.visibility",
+          "title": "Visibility / Graphics",
+          "description": "Opens Visibility/Graphics overrides for the active view (VG / VV).",
+          "kind": "command",
+          "target": "ID_VIEW_CATEGORY_VISIBILITY",
+          "tags": ["General", "Workflow"],
+          "added": "2026-08-25"
+        },
+        {
+          "id": "revit.commands.thinlines",
+          "title": "Thin Lines",
+          "description": "Toggles Thin Lines display (TL) in the active view.",
+          "kind": "command",
+          "target": "ID_THIN_LINES",
+          "tags": ["General", "Workflow"],
+          "added": "2026-08-25"
         }
       ]
     },
