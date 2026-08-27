@@ -42,6 +42,17 @@ namespace ACCODocs.Forms
         private List<LibrarySearch.SearchEntry> _userLinkEntries;   // user links only — merged into Library search
         private ResultsMode _resultsMode = ResultsMode.None;
         private List<string> _lastPickTags;         // for "Suggest a link for this"
+
+        // Persistent My Links root: expansion state lives on nodes, and user-group nodes are
+        // the same instances across renders, so the tree keeps its shape when Recents update.
+        private readonly LibraryNode _myLinksRoot = new LibraryNode
+        {
+            Id = "user.root",
+            Title = "My Links",
+            Source = "user",
+            IsExpanded = true,
+            Children = new List<LibraryNode>()
+        };
         private bool _refreshRunning;
 
         /// <summary>What the flat results list currently shows — decides the telemetry src.</summary>
@@ -417,18 +428,14 @@ namespace ACCODocs.Forms
                 .OrderByDescending(r => r.LastUsed, StringComparer.Ordinal)
                 .Select(r => Resolve(r.Id))
                 .Where(n => n != null)
-                .Take(10)
+                .Take(Math.Max(0, _config.MaxRecentsShown))
                 .ToList();
 
             // Personal content lives under ONE fixed root node (spec section 6) so nobody
             // confuses a personal "Standards" group with the authoritative master one.
-            var root = new LibraryNode
-            {
-                Id = "user.root",
-                Title = "My Links",
-                Source = "user",
-                Children = userRoots
-            };
+            LibraryNode root = _myLinksRoot;
+            root.Children = userRoots;
+            TreeMyLinks.ItemsSource = null;   // force container regeneration for the new content
             TreeMyLinks.ItemsSource = new List<LibraryNode> { root };
 
             // Search index for this tab: favorites + recents + user links, deduped by id.
@@ -505,7 +512,14 @@ namespace ACCODocs.Forms
 
         private void BtnAddLink_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new AddUserLinkWindow { Owner = Window.GetWindow(this) };
+            // Tag checkboxes come from the master's controlled vocabulary (empty when offline
+            // with no cache — the dialog hides its tag section then).
+            var vocabularyTags = _document?.TagVocabulary?.Values
+                .SelectMany(values => values)
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            var dialog = new AddUserLinkWindow(vocabularyTags) { Owner = Window.GetWindow(this) };
             if (dialog.ShowDialog() != true)
                 return;
 
@@ -515,13 +529,111 @@ namespace ACCODocs.Forms
             {
                 Id = Guid.NewGuid().ToString(),
                 Title = dialog.LinkTitle,
-                Kind = "url",
-                Target = dialog.LinkUrl,
+                Kind = dialog.LinkKind,
+                Target = dialog.LinkTarget,
+                Description = dialog.LinkDescription,
+                Tags = dialog.SelectedTags.Count > 0 ? dialog.SelectedTags : null,
                 Added = DateTime.UtcNow.ToString("yyyy-MM-dd"),
                 Source = "user"
             });
             SaveUserLibrary();
             RenderMyLinks();
+        }
+
+        // ---------------------------------------------------------------------
+        // Export / import (backup & sharing). Exports use the user-file schema,
+        // so an export is restorable by hand too. Pure file work — no Revit API.
+        // ---------------------------------------------------------------------
+
+        private void BtnExportLinks_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Export My Links",
+                Filter = "Link Library export (*.json)|*.json",
+                FileName = $"LinkLibrary.user.{Environment.UserName}.{DateTime.Now:yyyy-MM-dd}.json"
+            };
+            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+                return;
+
+            try
+            {
+                _userService.Export(_userLibrary, dialog.FileName);
+                TxtLibraryStatus.Text = $"Exported {_userLibrary.Favorites.Count} favorites, " +
+                    $"{_userLibrary.Recents.Count} recents, and your links to {Path.GetFileName(dialog.FileName)}.";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[LinkLibrary] Export failed: {ex.Message}");
+                TxtLibraryStatus.Text = $"Export failed — {ex.Message}";
+            }
+        }
+
+        private void BtnImportLinks_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Import My Links",
+                Filter = "Link Library export (*.json)|*.json|All files (*.*)|*.*"
+            };
+            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+                return;
+
+            UserLibraryDocument imported;
+            try
+            {
+                imported = UserLibraryService.Parse(File.ReadAllText(dialog.FileName));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[LinkLibrary] Import read failed: {ex.Message}");
+                imported = null;
+            }
+
+            if (imported == null)
+            {
+                TxtLibraryStatus.Text = $"\"{Path.GetFileName(dialog.FileName)}\" is not a valid Link Library export — nothing was imported.";
+                return;
+            }
+
+            string summary = $"File: {Path.GetFileName(dialog.FileName)} — " +
+                $"{imported.Favorites.Count} favorites, {imported.Recents.Count} recents" +
+                (string.IsNullOrEmpty(imported.User) ? "" : $", exported by {imported.User}");
+            var modeDialog = new ImportLinksModeWindow(summary) { Owner = Window.GetWindow(this) };
+            modeDialog.ShowDialog();
+
+            switch (modeDialog.Result)
+            {
+                case ImportLinksModeWindow.ImportMode.Merge:
+                    var counts = UserLibraryService.MergeInto(_userLibrary, imported, _config.MaxRecentsStored);
+                    SaveUserLibrary();
+                    RenderMyLinks();
+                    TxtLibraryStatus.Text = counts.Total == 0
+                        ? "Nothing new to import — you already have everything in that file."
+                        : $"Imported {counts.LinksAdded} links, {counts.FavoritesAdded} favorites, {counts.RecentsAdded} recents.";
+                    break;
+
+                case ImportLinksModeWindow.ImportMode.Replace:
+                    try
+                    {
+                        // Safety net: keep the pre-import state next to the user file.
+                        if (File.Exists(_userService.UserFilePath))
+                            File.Copy(_userService.UserFilePath, _userService.UserFilePath + ".pre-import.bak", true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[LinkLibrary] Pre-import backup failed: {ex.Message}");
+                    }
+
+                    _userLibrary.Favorites = imported.Favorites;
+                    _userLibrary.Recents = imported.Recents;
+                    _userLibrary.Groups = imported.Groups;   // User stays the current user
+                    SaveUserLibrary();
+                    RenderMyLinks();
+                    TxtLibraryStatus.Text = $"Replaced your links with {Path.GetFileName(dialog.FileName)} " +
+                        "(previous state saved as LinkLibrary.user.json.pre-import.bak).";
+                    break;
+            }
         }
 
         // ---------------------------------------------------------------------
@@ -564,6 +676,7 @@ namespace ACCODocs.Forms
             var menu = (sender as MenuItem)?.Parent as ContextMenu;
             var target = menu?.PlacementTarget;
             string src = ReferenceEquals(target, ListResults) ? ResultsSrc()
+                       : ReferenceEquals(target, ListMyResults) ? "search"
                        : ReferenceEquals(target, ListFavorites) ? "favorite"
                        : ReferenceEquals(target, ListRecents) ? "recent"
                        : "tree";
@@ -656,12 +769,43 @@ namespace ACCODocs.Forms
                 }
                 else
                 {
-                    Debug.WriteLine($"[LinkLibrary] Opening {node.Kind} '{node.Id}': {node.Target}");
-                    Process.Start(new ProcessStartInfo(node.Target) { UseShellExecute = true });
+                    // Dispatch by what the target actually IS, not the stored kind — links
+                    // saved with the wrong kind (or pasted with quotes) still open correctly.
+                    string target = NormalizeTarget(node.Target);
+                    Debug.WriteLine($"[LinkLibrary] Opening {node.Kind} '{node.Id}': {target}");
+
+                    if (target.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                        target.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                        target.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+                    }
+                    else if (Directory.Exists(target))
+                    {
+                        // ShellExecute mishandles virtual-provider reparse folders (Box Drive,
+                        // OneDrive placeholders) — Explorer opens them natively.
+                        Process.Start(new ProcessStartInfo("explorer.exe", $"\"{target}\"") { UseShellExecute = true });
+                    }
+                    else if (File.Exists(target))
+                    {
+                        Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+                    }
+                    else if (LooksLikePath(target))
+                    {
+                        // A path that isn't there right now: dead share, unsynced Box content,
+                        // moved file. Say so instead of throwing — and record nothing.
+                        TxtLibraryStatus.Text = $"\"{node.Title}\" points to {target}, which was not found — " +
+                            "check that the drive, share, or Box is connected and signed in.";
+                        return;
+                    }
+                    else
+                    {
+                        Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
+                    }
                 }
 
                 // Every open becomes a recent (spec section 6) and a telemetry line (section 9).
-                UserLibraryService.RecordRecent(_userLibrary, node.Id);
+                UserLibraryService.RecordRecent(_userLibrary, node.Id, _config.MaxRecentsStored);
                 SaveUserLibrary();
                 RenderMyLinks();
                 _telemetry.Log(node.Id, src);
@@ -671,6 +815,23 @@ namespace ACCODocs.Forms
                 Debug.WriteLine($"[LinkLibrary] Open failed for '{node.Id}': {ex.Message}");
                 TxtLibraryStatus.Text = $"Could not open \"{node.Title}\" — {ex.Message}";
             }
+        }
+
+        /// <summary>Trims whitespace and the surrounding quotes Explorer's "Copy as path" adds.</summary>
+        internal static string NormalizeTarget(string target)
+        {
+            string result = (target ?? "").Trim();
+            if (result.Length >= 2 && result.StartsWith("\"") && result.EndsWith("\""))
+                result = result.Substring(1, result.Length - 2).Trim();
+            return result;
+        }
+
+        /// <summary>True for drive-rooted (X:\...) and UNC (\\server\...) targets.</summary>
+        private static bool LooksLikePath(string target)
+        {
+            return target.StartsWith("\\\\") ||
+                   (target.Length >= 3 && char.IsLetter(target[0]) && target[1] == ':' &&
+                    (target[2] == '\\' || target[2] == '/'));
         }
 
         /// <summary>

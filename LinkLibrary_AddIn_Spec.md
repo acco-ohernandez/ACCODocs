@@ -401,3 +401,19 @@ or deviated from it — carry them into the production port.
     not fields; set explicit Background+Foreground (dark theme renders unstyled template text
     black-on-black); alias WPF control names because the template enables WinForms; marshal
     post-`await` UI work through the `Dispatcher` when the pane is built during `OnStartup`.
+11. **My Links export/import (added 2026-08-24):** Export/Import buttons on the My Links tab.
+    Exports use the §6 user-file schema verbatim (a backup restores by file copy too). Import
+    offers "Merge (add new only)" — id-based union of favorites/recents plus a recursive by-id
+    group/link merge, never touching existing entries — or "Replace all", which double-click
+    confirms and first snapshots the current file as `LinkLibrary.user.json.pre-import.bak`.
+    This implements §12 Q1's manual export/import fallback.
+12. **Recents caps are configurable (added 2026-08-24):** `maxRecentsStored` (default 20 — distinct
+    links kept in the user file; 0 disables recents) and `maxRecentsShown` (default 10 — rows the
+    My Links tab displays and its search indexes). Defaults compiled in like all config keys.
+13. **Any-location user links + folder-open hardening (added 2026-08-24):** the Add Link dialog
+    takes a generic Location (URL, file, folder, network share, or Box path) with browse buttons,
+    live kind auto-detection (overridable), a description, and vocabulary tag checkboxes.
+    `OpenLink` dispatches by what the target actually is: folders open via `explorer.exe`
+    (ShellExecute fails on Box Drive/OneDrive ReparsePoint folders), quoted "Copy as path"
+    targets are unquoted, and an unreachable path shows a friendly status instead of an error
+    (and records no recent/telemetry).

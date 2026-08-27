@@ -75,7 +75,7 @@
 	<Version>$(RevitVersion)</Version>
     	<StartAction>Program</StartAction>
     	<StartProgram>$(ProgramW6432)\Autodesk\Revit $(RevitVersion)\Revit.exe</StartProgram>
-    	<StartArguments>/language ENG</StartArguments>
+    	<StartArguments>/language ENU</StartArguments>
 </PropertyGroup>
 
 <ItemGroup>

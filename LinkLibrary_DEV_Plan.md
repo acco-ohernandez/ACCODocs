@@ -53,6 +53,7 @@ learned, and the port checklist.
 | 7 | NEW badge, Suggest a link, `command` kind, dead-link check | ✅ implemented — badge via `newBadgeDays`; suggest = dialog with gmail/mailto + clipboard (config-driven, subject prefix for filtering); `PostCommand` via ExternalEvent; once-per-session HEAD probe · **F5 verification pending** |
 | — | Deep linking (spec §11) | ✅ `LinkLibrary_Pane.ShowLink(uiapp, linkId)` — pane opens focused on the link; opens log `src:"deepLink"` |
 | — | Master editor (admin GUI) | ✅ `LinkLibraryEditor` app — permanent auto-ids, vocabulary checkboxes, auto revision bump, atomic save, validation |
+| — | My Links export/import | ✅ Export/Import buttons on the My Links tab — export = valid user-file JSON (backup/sharing); import asks **Merge (add new only)** vs **Replace all** (double-click confirm + `.pre-import.bak` safety copy); merge is id-based (favorites union, recents union capped at 20, recursive group merge, links skipped if the id exists anywhere) · **F5 verification pending** |
 
 File map: see [`ACCODocs/README.md`](ACCODocs/README.md).
 
@@ -80,7 +81,12 @@ File map: see [`ACCODocs/README.md`](ACCODocs/README.md).
    pragma'd on net8).
 9. **`.slnx` config mappings** must use the pair form `Solution="Debug R25|*"` — omitting `|*`
    makes the whole solution unparseable in VS. Verify with `dotnet sln <file> list`.
-10. **Dead-link probe blind spot:** a lapsed domain redirecting to a parking page returns 200 and
+10. **ShellExecute vs Box Drive folders:** `ProcessStartInfo { UseShellExecute = true }` on a
+    virtual-provider ReparsePoint directory (Box Drive, OneDrive placeholders) fails, while real
+    local/UNC folders work. Open folders via `explorer.exe "<path>"` instead — Explorer handles
+    virtual filesystems natively. Also trim surrounding quotes from targets (Explorer's
+    "Copy as path" wraps in quotes) and dispatch by what the target actually is, not the stored kind.
+11. **Dead-link probe blind spot:** a lapsed domain redirecting to a parking page returns 200 and
     is not flagged (live example: The Building Coder's typepad URL → networksolutions parking).
     Candidate upgrade: flag when the final redirect domain differs from the stored one.
 
@@ -102,8 +108,9 @@ File map: see [`ACCODocs/README.md`](ACCODocs/README.md).
 
 ## 6. Open questions (spec §12 — DECIDE BEFORE PORT)
 
-1. **Roaming profiles?** → `%APPDATA%` vs `%LOCALAPPDATA%` for the user library; if not roaming,
-   consider an export/import button later.
+1. **Roaming profiles?** → `%APPDATA%` vs `%LOCALAPPDATA%` for the user library. The manual
+   export/import fallback the spec suggested for the non-roaming case is now BUILT (My Links tab),
+   which lowers the stakes of this decision.
 2. **Which production tab(s) host the button** — all three or ConTech only? (§3 handles all three.)
 3. **Master edit rights** — recommended: ConTech team only, via `LinkLibraryEditor`; everyone else
    through Suggest a link.
@@ -116,7 +123,10 @@ The `BTT-ACCORevit-Ribbons` Claude skill automates the import mechanics. "Done" 
    `SuggestLinkWindow` into `RevitRibbon_MainSourceCode_Resources` (same subfolders); remap
    namespaces `ACCODocs.*` → production.
 2. Delete the copied `ModelessExternalEventHandler.cs`; use production's
-   (`RevitRibbon_MainSourceCode_Resources\Common\`).
+   (`RevitRibbon_MainSourceCode_Resources\Common\`). **But first carry the dev copy's `Execute`
+   hardening into the production handler** (2026-08-24 review): clear `HandlerAction` BEFORE
+   invoking and wrap the invoke in try/catch — production's version invokes first and has no
+   catch, so a throwing action can crash Revit and stays armed to re-fire on the next Raise.
 3. Create `Cmd_ShowLinkLibraryPane` under `Unique Button Classes\<Tab>\` for each hosting tab
    (toggle logic from dev `Cmd_ACCODocs`); register in `.projitems`; add `.ribbon` XML entries.
 4. Call `LinkLibraryPaneRegistrar.Register(...)` from each hosting tab's `OnStartup`.
@@ -149,3 +159,25 @@ The `BTT-ACCORevit-Ribbons` Claude skill automates the import mechanics. "Done" 
 - `LinkLibraryEditor` admin app built; `.slnx` mapping syntax broke VS solution load → fixed.
 - Search fixes: fields→properties (the real "search broken" cause), explicit colors for dark
   theme, target/URL indexing, Library search spans user links, My Links search added.
+- My Links export/import: `UserLibraryService.Parse/Export/MergeInto`, `ImportLinksModeWindow`
+  (merge-new vs replace-all with double-click confirm), pre-import `.bak`, buttons under the
+  user-links tree.
+- Recents caps made configurable: `maxRecentsStored` (default 20, 0 = off) / `maxRecentsShown`
+  (default 10) — new config keys, threaded through `RecordRecent`/`MergeInto`/`RenderMyLinks`.
+- Full-solution review (revit-review checklist): hardened `ModelessExternalEventHandler.Execute`
+  (clear-before-invoke + try/catch — an escaping exception crashes Revit and a throwing action
+  stayed armed); fixed telemetry `src` for context-menu Open on My Links search results
+  ("tree" → "search"). Everything else clean; both TestData JSONs re-validated.
+- Tree collapse fix + custom tags: `LibraryNode.IsExpanded` (runtime-only) bound TwoWay via
+  `ItemContainerStyle` on both trees + a persistent My Links root node — re-rendering (every open
+  updates Recents) no longer collapses the tree. Comma-separated custom-tag fields added to the
+  Add Link dialog (merged with checked vocabulary tags, deduped case-insensitively) AND the
+  editor — where customs are folded into a `custom` vocabulary group on Apply so master
+  validation stays clean.
+- Box-folder fix + Add Link v2: `OpenLink` now dispatches by actual target (quote-trim via
+  `NormalizeTarget`, folders via `explorer.exe` — fixes Box Drive ReparsePoint folders, lesson 10 —
+  friendly not-found status for dead paths, no recent/telemetry recorded then); `AddUserLinkWindow`
+  rewritten — Location field (any URL/file/folder/share/Box path) with Browse File/Folder buttons
+  (WinForms `FolderBrowserDialog`: works on net48 AND net8; `OpenFolderDialog` is net8-only),
+  live kind auto-detect with manual override, Description, vocabulary tag checkboxes (hidden when
+  offline), not-found paths need a confirming second Add click, browsed paths auto-fill the title.

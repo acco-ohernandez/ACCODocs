@@ -33,6 +33,12 @@ namespace ACCODocs.Logic.LinkLibrary
         public int NewBadgeDays { get; set; } = 14;
         public bool EnableTelemetry { get; set; } = true;
 
+        /// <summary>How many distinct recent links are kept in the user file (0 disables recents).</summary>
+        public int MaxRecentsStored { get; set; } = 20;
+
+        /// <summary>How many recents the My Links tab displays (and its search indexes).</summary>
+        public int MaxRecentsShown { get; set; } = 10;
+
         /// <summary>Where this config came from ("shared", "assembly folder", or "built-in defaults"). Runtime only.</summary>
         [JsonIgnore]
         public string Source { get; private set; } = "built-in defaults";

@@ -10,10 +10,22 @@ namespace ACCODocs.Common
         private static UIDocument _uiDoc;
 
         // Execute is called by Revit on the next idle event after ExternalEvent.Raise().
+        // An exception escaping Execute crashes Revit, so this is the last line of defense
+        // even though individual HandlerActions guard themselves. The action is cleared
+        // BEFORE invoking so a throwing action can never stay armed and re-fire on the
+        // next Raise. (Safety hardening over the production copy — carry it back at port.)
         public void Execute(UIApplication app)
         {
-            HandlerAction?.Invoke(app);
+            Action<UIApplication> action = HandlerAction;
             HandlerAction = null;
+            try
+            {
+                action?.Invoke(app);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ModelessExternalEventHandler] HandlerAction threw: {ex}");
+            }
         }
 
         public string GetName() => nameof(ModelessExternalEventHandler);

@@ -9,5 +9,7 @@
   "suggestionSubjectPrefix": "[ACCO Link Library]",
   "refreshCheckMinutes": 60,
   "newBadgeDays": 14,
-  "enableTelemetry": true
+  "enableTelemetry": true,
+  "maxRecentsStored": 20,
+  "maxRecentsShown": 10
 }

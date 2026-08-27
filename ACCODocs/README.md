@@ -16,6 +16,7 @@ Forms\
   LinkLibrary_Pane.xaml(.cs)        The dockable pane (Library + My Links tabs)
   AddUserLinkWindow.xaml(.cs)       "Add link..." dialog
   SuggestLinkWindow.xaml(.cs)       "Suggest a link" dialog (gmail/mailto + clipboard)
+  ImportLinksModeWindow.xaml(.cs)   Import chooser: merge-new-only vs replace-all
 Logic\LinkLibrary\
   LinkLibraryConfig.cs              Config probe order + new suggestion-mail keys
   LinkLibraryModels.cs              LinkLibraryDocument + LibraryNode (shared with the editor)

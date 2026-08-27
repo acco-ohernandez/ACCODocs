@@ -158,6 +158,13 @@ namespace LinkLibraryEditor
                     option.IsChecked = node.Tags != null && node.Tags.Contains(option.Name);
                 ListTags.ItemsSource = null;
                 ListTags.ItemsSource = _tagOptions;
+
+                // Tags the node carries that the vocabulary doesn't know yet show up here
+                // (e.g. from a hand-edited file); applying folds them into the vocabulary.
+                var vocabulary = new HashSet<string>(AllVocabularyTags());
+                TxtCustomTags.Text = node.Tags == null
+                    ? ""
+                    : string.Join(", ", node.Tags.Where(tag => !vocabulary.Contains(tag)));
             }
         }
 
@@ -176,8 +183,33 @@ namespace LinkLibraryEditor
                 _selected.Owner = string.IsNullOrWhiteSpace(TxtOwner.Text) ? null : TxtOwner.Text.Trim();
                 _selected.Updated = DateTime.Now.ToString("yyyy-MM-dd");
 
-                var tags = _tagOptions.Where(t => t.IsChecked).Select(t => t.Name).ToList();
+                // Checked vocabulary tags + free-form custom tags. Customs are folded into
+                // the vocabulary's "custom" group so the master stays validation-clean —
+                // the controlled list remains the authority, extended consciously here.
+                var customTags = TxtCustomTags.Text
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(tag => tag.Trim())
+                    .Where(tag => tag.Length > 0)
+                    .ToList();
+
+                var tags = _tagOptions.Where(option => option.IsChecked).Select(option => option.Name)
+                    .Concat(customTags)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
                 _selected.Tags = tags.Count > 0 ? tags : null;
+
+                if (customTags.Count > 0)
+                {
+                    _doc.TagVocabulary ??= new Dictionary<string, List<string>>();
+                    if (!_doc.TagVocabulary.TryGetValue("custom", out List<string> customGroup))
+                    {
+                        customGroup = new List<string>();
+                        _doc.TagVocabulary["custom"] = customGroup;
+                    }
+                    var known = new HashSet<string>(AllVocabularyTags(), StringComparer.OrdinalIgnoreCase);
+                    customGroup.AddRange(customTags.Where(tag => !known.Contains(tag)));
+                    BuildTagOptions();   // new tags become checkboxes immediately
+                }
 
                 var versions = new List<int>();
                 foreach (string part in TxtVersions.Text.Split(',', StringSplitOptions.RemoveEmptyEntries))
@@ -188,6 +220,7 @@ namespace LinkLibraryEditor
 
             _dirty = true;
             RefreshTree();
+            ShowNode(_selected);   // new custom tags now render as checked checkboxes
             TxtStatus.Text = $"Applied changes to \"{_selected.Title}\" (unsaved).";
         }
 

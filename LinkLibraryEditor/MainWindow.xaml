@@ -111,6 +111,9 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
+                        <TextBlock Text="Custom tags (comma-separated — added to the vocabulary's 'custom' group on Apply)" Margin="0,0,0,2"/>
+                        <TextBox x:Name="TxtCustomTags" Padding="4,3" Margin="0,0,0,8"/>
+
                         <TextBlock Text="Revit versions (comma-separated, empty = all versions)" Margin="0,0,0,2"/>
                         <TextBox x:Name="TxtVersions" Padding="4,3" Margin="0,0,0,8"/>
 

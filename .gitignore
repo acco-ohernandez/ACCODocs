@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# .NET runtime installer for LinkLibraryEditor distribution - too large for git, keep local
+LinkLibraryEditor/DotNet_Runtime/

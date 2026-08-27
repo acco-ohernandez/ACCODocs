@@ -48,6 +48,12 @@
             </StackPanel>
         </DataTemplate>
 
+        <!-- Expansion state lives on the node (LibraryNode.IsExpanded) so re-renders
+             don't collapse the trees -->
+        <Style x:Key="NodeContainerStyle" TargetType="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+        </Style>
+
         <!-- Shared row for both hierarchical trees -->
         <HierarchicalDataTemplate x:Key="NodeTreeTemplate" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
@@ -152,7 +158,8 @@
                              Background="White" Foreground="Black"
                               BorderThickness="0"
                               MouseDoubleClick="TreeLibrary_MouseDoubleClick"
-                              ItemTemplate="{StaticResource NodeTreeTemplate}">
+                              ItemTemplate="{StaticResource NodeTreeTemplate}"
+                              ItemContainerStyle="{StaticResource NodeContainerStyle}">
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Open" Click="CtxOpen_Click"/>
@@ -273,6 +280,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Auto-populated sections first — this is what people actually use daily (spec section 7) -->
@@ -329,7 +337,8 @@
                              Background="White" Foreground="Black"
                               BorderThickness="0"
                               MouseDoubleClick="TreeMyLinks_MouseDoubleClick"
-                              ItemTemplate="{StaticResource NodeTreeTemplate}">
+                              ItemTemplate="{StaticResource NodeTreeTemplate}"
+                              ItemContainerStyle="{StaticResource NodeContainerStyle}">
                         <TreeView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Open" Click="CtxOpen_Click"/>
@@ -340,6 +349,16 @@
                             </ContextMenu>
                         </TreeView.ContextMenu>
                     </TreeView>
+
+                    <!-- Backup / sharing: exports are valid user-library JSON files -->
+                    <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                        <Button Content="Export..." Padding="8,2" Margin="0,0,6,0"
+                                ToolTip="Save favorites, recents, and My Links to a JSON file for backup or sharing"
+                                Click="BtnExportLinks_Click"/>
+                        <Button Content="Import..." Padding="8,2"
+                                ToolTip="Load links from an exported JSON file — merge new items or replace everything"
+                                Click="BtnImportLinks_Click"/>
+                    </StackPanel>
                     </Grid>
                 </Grid>
             </TabItem>

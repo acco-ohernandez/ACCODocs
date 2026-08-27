@@ -62,6 +62,14 @@ namespace ACCODocs.Logic.LinkLibrary
         [JsonIgnore]
         public bool IsNew { get; set; }
 
+        /// <summary>
+        /// Runtime only: tree-expansion state, bound TwoWay by the TreeViews' item container
+        /// style. Lives on the node so re-rendering (every link open updates Recents) doesn't
+        /// collapse the tree — containers are recreated but read this back.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsExpanded { get; set; }
+
         public bool IsVisibleFor(int revitVersion)
         {
             return RevitVersions == null || RevitVersions.Count == 0 || RevitVersions.Contains(revitVersion);

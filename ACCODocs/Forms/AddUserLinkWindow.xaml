@@ -2,12 +2,21 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Add Link"
-        Width="380" SizeToContent="Height"
-        WindowStartupLocation="CenterOwner"
+        Width="440" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         ShowInTaskbar="False">
     <Grid Margin="12">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -18,13 +27,55 @@
         <TextBlock Grid.Row="0" Text="Title" Margin="0,0,0,2"/>
         <TextBox Grid.Row="1" x:Name="TxtTitle" Padding="4,3" Margin="0,0,0,8"/>
 
-        <TextBlock Grid.Row="2" Text="URL" Margin="0,0,0,2"/>
-        <TextBox Grid.Row="3" x:Name="TxtUrl" Padding="4,3" Margin="0,0,0,12"
-                 Text="https://"/>
+        <TextBlock Grid.Row="2" Text="Location (URL, file, folder, or network/Box path)" Margin="0,0,0,2"/>
+        <DockPanel Grid.Row="3" Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right" Content="Browse Folder..." Padding="8,2" Margin="6,0,0,0"
+                    Click="BtnBrowseFolder_Click"/>
+            <Button DockPanel.Dock="Right" Content="Browse File..." Padding="8,2" Margin="6,0,0,0"
+                    Click="BtnBrowseFile_Click"/>
+            <TextBox x:Name="TxtLocation" Padding="4,3" TextChanged="TxtLocation_TextChanged"/>
+        </DockPanel>
 
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Add" Width="80" Margin="0,0,8,0" IsDefault="True" Click="BtnAdd_Click"/>
+        <DockPanel Grid.Row="4" Margin="0,0,0,8">
+            <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="CmbKind" Width="110" HorizontalAlignment="Left">
+                <ComboBoxItem Content="url"/>
+                <ComboBoxItem Content="file"/>
+                <ComboBoxItem Content="folder"/>
+                <ComboBoxItem Content="mailto"/>
+                <ComboBoxItem Content="video"/>
+            </ComboBox>
+            <TextBlock x:Name="TxtDetected" VerticalAlignment="Center" Margin="8,0,0,0"
+                       FontSize="11" Foreground="Gray" Text="(auto-detected from the location)"/>
+        </DockPanel>
+
+        <TextBlock Grid.Row="5" Text="Description (optional)" Margin="0,0,0,2"/>
+        <TextBox Grid.Row="6" x:Name="TxtDescription" Padding="4,3" Margin="0,0,0,8"
+                 AcceptsReturn="True" MinHeight="44" TextWrapping="Wrap"/>
+
+        <TextBlock Grid.Row="7" x:Name="LblTags" Text="Tags" Margin="0,0,0,2"/>
+        <ItemsControl Grid.Row="8" x:Name="ListTags" Margin="0,0,0,8">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}" Margin="0,2,10,2"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Grid.Row="9" Text="Custom tags (comma-separated, optional)" Margin="0,0,0,2"/>
+        <TextBox Grid.Row="10" x:Name="TxtCustomTags" Padding="4,3" Margin="0,0,0,8"/>
+
+        <StackPanel Grid.Row="11" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+            <Button x:Name="BtnAdd" Content="Add" Width="80" Margin="0,0,8,0" IsDefault="True" Click="BtnAdd_Click"/>
             <Button Content="Cancel" Width="80" IsCancel="True"/>
         </StackPanel>
+
+        <TextBlock Grid.Row="12" x:Name="TxtValidation" Margin="0,8,0,0" FontSize="11"
+                   Foreground="DarkRed" TextWrapping="Wrap" Visibility="Collapsed"/>
     </Grid>
 </Window>
