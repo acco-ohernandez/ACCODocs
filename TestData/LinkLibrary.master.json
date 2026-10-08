@@ -1,13 +1,91 @@
 {
   "schemaVersion": 1,
-  "revision": 4,
-  "revisionDate": "2026-08-24",
+  "revision": 5,
+  "revisionDate": "2026-10-08",
   "tagVocabulary": {
     "discipline": ["Mechanical", "Plumbing", "Piping", "Sheetmetal", "Electrical", "Structural", "General"],
     "category": ["OST_DuctCurves", "OST_PipeCurves", "OST_MechanicalEquipment", "OST_PipeFitting"],
     "topic": ["Standards", "Training", "Troubleshooting", "Content", "Workflow"]
   },
   "groups": [
+    {
+      "id": "acco.resources",
+      "title": "ACCO Resources",
+      "children": [
+        {
+          "id": "acco.resources.eng-standards-updates",
+          "title": "ACCO ENG Standards Updates",
+          "description": "Check to see if you've got the latest functions and features.",
+          "kind": "url",
+          "target": "https://sites.google.com/accoes.com/engineeringstandardsupdates/home?authuser=0",
+          "tags": ["General", "Standards"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.eng-standards-request-hub",
+          "title": "ACCO ENG Standards Request Hub",
+          "description": "The hub for change requests to department standards and reference materials.",
+          "kind": "url",
+          "target": "https://app.smartsheet.com/b/publish?EQBCT=2d0f470f4b904da2a68436c252448ddb",
+          "tags": ["General", "Standards", "Workflow"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.bim-request-portal",
+          "title": "ACCO BIM Request Portal",
+          "description": "A place to submit requests for BIM support.",
+          "kind": "url",
+          "target": "https://app.smartsheet.com/b/publish?EQBCT=acca45ff0b33449f989bc8b65a2994a5",
+          "tags": ["General", "Workflow", "Troubleshooting"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.revit-family-catalog",
+          "title": "ACCO Revit",
+          "description": "A cataloged list of all the ACCO Revit families that are available.",
+          "kind": "url",
+          "target": "https://sites.google.com/a/accoes.com/revit/?pli=1",
+          "tags": ["General", "Content"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.reference-manuals",
+          "title": "ACCO Reference Manuals",
+          "description": "Design and drawing references.",
+          "kind": "url",
+          "target": "https://accoes.app.box.com/folder/133525108832",
+          "tags": ["General", "Content", "Standards"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.plumbing-groups",
+          "title": "ACCO Revit Plumbing Groups",
+          "description": "How-to guide and catalog for speedy plumbing layouts.",
+          "kind": "url",
+          "target": "https://accoes.app.box.com/file/1151178970546",
+          "tags": ["Plumbing", "Content", "Workflow"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.acc-projects",
+          "title": "ACC Projects",
+          "description": "A shortcut to all your ACC projects.",
+          "kind": "url",
+          "target": "https://acc.autodesk.com/projects",
+          "tags": ["General", "Workflow"],
+          "added": "2026-10-08"
+        },
+        {
+          "id": "acco.resources.accorevit-local",
+          "title": "ACCORevit (C:\\)",
+          "description": "A shortcut to the local library of families.",
+          "kind": "folder",
+          "target": "C:\\ACCORevit\\ACCO",
+          "tags": ["General", "Content"],
+          "added": "2026-10-08"
+        }
+      ]
+    },
     {
       "id": "acco.standards",
       "title": "ACCO Standards",

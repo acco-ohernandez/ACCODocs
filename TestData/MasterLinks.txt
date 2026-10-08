@@ -1,0 +1,15 @@
+ACCO ENG Standards Updates: https://sites.google.com/accoes.com/engineeringstandardsupdates/home?authuser=0  Description: Check to see if you've got the latest functions and features
+
+ACCO ENG Standards Request Hub: https://app.smartsheet.com/b/publish?EQBCT=2d0f470f4b904da2a68436c252448ddb  Description:The hub for changes requests to department standards and reference materials
+
+ACCO BIM Request Portal: https://app.smartsheet.com/b/publish?EQBCT=acca45ff0b33449f989bc8b65a2994a5  Description: A place to submit requests for BIM support
+
+ACCO Revit: https://sites.google.com/a/accoes.com/revit/?pli=1  Description: A cataloged list of all the ACCO Revit families that are available.
+
+ACCO Reference Manuals: https://accoes.app.box.com/folder/133525108832  Description: Design and drawing references
+
+ACCO Revit Plumbing Groups: https://accoes.app.box.com/file/1151178970546  Description: How-to guide and catalog for speedy plumbing layouts
+
+ACC Projects: https://acc.autodesk.com/projects  Description: A shortcut to all your ACC projects
+
+ACCORevit (C:\): C:\ACCORevit\ACCO  Description: A shortcut to the local library of families
