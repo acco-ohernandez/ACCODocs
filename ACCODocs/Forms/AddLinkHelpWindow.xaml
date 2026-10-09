@@ -1,0 +1,90 @@
+<Window x:Class="ACCODocs.Forms.AddLinkHelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Add Link — Help"
+        Width="620" Height="640"
+        WindowStartupLocation="CenterScreen"
+        Background="White"
+        FontSize="14"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,14,0,4"/>
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style x:Key="Mono" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="12,0,0,2"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" BorderBrush="Gainsboro" BorderThickness="0,1,0,0" Padding="12,8">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="Text size (Ctrl + mouse wheel works too)">
+                    <Button x:Name="BtnZoomOut" Content="A−" Width="34" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TxtZoom" Text="100%" Width="44" VerticalAlignment="Center"
+                               TextAlignment="Center" Foreground="Gray"/>
+                    <Button x:Name="BtnZoomIn" Content="A+" Width="34" Margin="4,0,0,0"/>
+                </StackPanel>
+                <Button Content="Close" Width="80" HorizontalAlignment="Right" IsCancel="True" Click="BtnClose_Click"/>
+            </DockPanel>
+        </Border>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,0,14,14">
+            <StackPanel x:Name="ContentPanel">
+
+                <TextBlock Style="{StaticResource H1}" Text="Adding a link to My Links"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Links you add here are yours alone — they appear on the My Links tab and in search, and they travel with Export/Import. This window can stay open next to the Add Link form while you fill it in."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Title (required)"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="The name shown in the tree and in search results. Browsing to a file or folder fills this in automatically if it's still empty."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Location (required)"/>
+                <TextBlock Style="{StaticResource Body}" Text="Accepts any of the following — type or paste it, or use the Browse buttons:"/>
+                <TextBlock Style="{StaticResource Mono}" Text="https://app.smartsheet.com/...        web page"/>
+                <TextBlock Style="{StaticResource Mono}" Text="C:\ACCORevit\ACCO                     local folder"/>
+                <TextBlock Style="{StaticResource Mono}" Text="W:\Standards\hangers.pdf              file on a drive or share"/>
+                <TextBlock Style="{StaticResource Mono}" Text="\\server\share\folder                 network (UNC) path"/>
+                <TextBlock Style="{StaticResource Mono}" Text="C:\CORP BOX\Box\...                   Box Drive folder"/>
+                <TextBlock Style="{StaticResource Mono}" Text="mailto:someone@accoes.com             email address"/>
+                <TextBlock Style="{StaticResource Mono}" Text="ID_SETTINGS_UNITS                     built-in Revit command"/>
+                <TextBlock Style="{StaticResource Mono}" Text="CustomCtrl_%...                       add-in ribbon command"/>
+                <TextBlock Style="{StaticResource Body}" Margin="0,6,0,6"
+                           Text="Paths pasted with surrounding quotes (Explorer's 'Copy as path') are cleaned up automatically. If a path isn't reachable right now — disconnected drive, unsynced Box content — you'll be asked to click Add a second time to save it anyway."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Type"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Detected automatically from the Location as you type or browse; override it with the dropdown if needed. The type decides what double-clicking the link does: url and video open the browser, file opens the file in its app, folder opens Explorer, mailto drafts an email, and command runs the Revit command."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Category and Sub-category (optional)"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Where the link is filed under My Links. Pick an existing group from the dropdown, or type a new name to create one — the Sub-category list follows whichever Category you chose. Left empty, the link lands at the top level of My Links. Matching is forgiving: 'Piping' and 'piping' are the same group."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Description (optional)"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Shown as the link's tooltip in the tree, and searched along with the title — a good place for the words you'll actually search for later."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Tags"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Tags power two things: text search, and Pick Element matching (a link tagged Piping or OST_PipeCurves ranks high when you pick a pipe). Check any that fit from the shared vocabulary, and add your own in the custom box, separated by commas — for example: submittals, vendor, 2026 bid."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Finding Revit command ids"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Built-in dialogs use ids like ID_PURGE_UNUSED or ID_REVIEW_WARNINGS. Any ribbon button's id — including ACCO add-in buttons — is recorded in the Revit journal file right after you click it (look for lines containing 'Jrn.RibbonEvent'). Paste the id as the Location and the type flips to command automatically."/>
+
+                <TextBlock Style="{StaticResource Body}" Margin="0,14,0,0" Foreground="Gray"
+                           Text="Tip: a link worth having is usually worth sharing — use Suggest a link... on the My Links tab to get it added to the shared ACCO library for everyone."/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

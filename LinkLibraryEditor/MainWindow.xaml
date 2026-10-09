@@ -12,15 +12,33 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8">
+        <DockPanel Grid.Row="0" Margin="8">
+            <TextBlock DockPanel.Dock="Right"
+                       Text="Help"
+                       VerticalAlignment="Center"
+                       Foreground="#0B6CCB"
+                       TextDecorations="Underline"
+                       Cursor="Hand"
+                       ToolTip="How this editor and the master library work"
+                       MouseLeftButtonUp="Help_Click"/>
+            <StackPanel Orientation="Horizontal">
             <Button Content="Open..." Padding="10,4" Margin="0,0,6,0" Click="BtnOpen_Click"/>
-            <Button Content="Save" Padding="10,4" Margin="0,0,16,0" Click="BtnSave_Click"
-                    ToolTip="Validates, bumps the revision, and writes atomically"/>
+            <Button Content="Save" Padding="10,4" Margin="0,0,6,0" Click="BtnSave_Click"
+                    ToolTip="Validates, bumps the revision, and writes atomically (Ctrl+S)"/>
+            <Button Content="Close File" Padding="10,4" Margin="0,0,6,0" Click="BtnCloseFile_Click"
+                    ToolTip="Unload the current file (warns about unsaved changes)"/>
+            <Button Content="Config..." Padding="10,4" Margin="0,0,16,0" Click="BtnConfig_Click"
+                    ToolTip="Edit a LinkLibrary.config.json (paths, fallback, behavior settings)"/>
             <Button Content="Add Group" Padding="10,4" Margin="0,0,6,0" Click="BtnAddGroup_Click"/>
             <Button Content="Add Link" Padding="10,4" Margin="0,0,6,0" Click="BtnAddLink_Click"/>
             <Button Content="Delete" Padding="10,4" Margin="0,0,16,0" Click="BtnDelete_Click"/>
+            <Button Content="▲ Move Up" Padding="10,4" Margin="0,0,6,0" Click="BtnMoveUp_Click"
+                    ToolTip="Move the selected group or link up within its parent"/>
+            <Button Content="▼ Move Down" Padding="10,4" Margin="0,0,16,0" Click="BtnMoveDown_Click"
+                    ToolTip="Move the selected group or link down within its parent"/>
             <Button Content="Validate" Padding="10,4" Click="BtnValidate_Click"/>
-        </StackPanel>
+            </StackPanel>
+        </DockPanel>
 
         <Grid Grid.Row="1" Margin="8,0,8,0">
             <Grid.ColumnDefinitions>
@@ -33,6 +51,14 @@
             <TreeView Grid.Column="0"
                       x:Name="TreeMain"
                       SelectedItemChanged="TreeMain_SelectedItemChanged">
+                <!-- Expansion and selection live on the node, so RefreshTree() (which
+                     rebuilds containers) no longer collapses the tree or drops selection -->
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">

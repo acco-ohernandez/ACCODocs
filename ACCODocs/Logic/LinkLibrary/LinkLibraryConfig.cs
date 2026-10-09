@@ -3,19 +3,31 @@ using Newtonsoft.Json;
 namespace ACCODocs.Logic.LinkLibrary
 {
     /// <summary>
-    /// Deployment config for the Link Library pane (spec section 4).
-    /// Probe order, first hit wins:
-    ///   1. C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\LinkLibrary.config.json  (shared, all tabs/years)
-    ///   2. &lt;assembly folder&gt;\LinkLibrary.config.json                                    (per-deploy override / dev)
+    /// Deployment config for the Link Library pane (spec section 4; probe #1 moved into
+    /// RibbonsShared — spec section 15 delta). Probe order, first hit wins:
+    ///   1. C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared\LinkLibrary.config.json  (installed, all tabs/years)
+    ///   2. &lt;assembly folder&gt;\LinkLibrary.config.json                                                  (per-deploy override / dev)
     ///   3. Hardcoded defaults — the pane must never fail to open because config is missing.
     /// </summary>
     public class LinkLibraryConfig
     {
         public const string ConfigFileName = "LinkLibrary.config.json";
-        public const string SharedConfigFolder = @"C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons";
+
+        // The installed-by-MSI folder that should always exist locally. It holds the shared
+        // config file (probe #1) AND the seed/fallback copy of the master library used when
+        // the network master is unreachable (spec section 10 cold start). A config next to
+        // the DLL overrides it for testing without touching the installed folder.
+        public const string SharedConfigFolder = @"C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared";
 
         public int ConfigVersion { get; set; } = 1;
         public string MasterLibraryPath { get; set; } = "";
+
+        /// <summary>
+        /// Local master copy tried when <see cref="MasterLibraryPath"/> is unreachable or
+        /// unparseable — the MSI-installed seed (spec section 10). Normal revision rules
+        /// apply: it only wins over the cache when its revision is higher. Empty disables.
+        /// </summary>
+        public string FallbackLibraryPath { get; set; } = SharedConfigFolder + @"\LinkLibrary.master.json";
         public string LocalCacheFolder { get; set; } = @"%PROGRAMDATA%\ACCO\RevitLinkLibrary\cache";
         public string UserLibraryFolder { get; set; } = @"%LOCALAPPDATA%\ACCO\RevitLinkLibrary";
         public string TelemetryFolder { get; set; } = @"%PROGRAMDATA%\ACCO\RevitLinkLibrary\usage";
@@ -91,6 +103,7 @@ namespace ACCODocs.Logic.LinkLibrary
 
         // All path values run through Environment.ExpandEnvironmentVariables (spec section 4).
         public string ExpandedMasterLibraryPath => Environment.ExpandEnvironmentVariables(MasterLibraryPath ?? "");
+        public string ExpandedFallbackLibraryPath => Environment.ExpandEnvironmentVariables(FallbackLibraryPath ?? "");
         public string ExpandedLocalCacheFolder => Environment.ExpandEnvironmentVariables(LocalCacheFolder ?? "");
         public string ExpandedUserLibraryFolder => Environment.ExpandEnvironmentVariables(UserLibraryFolder ?? "");
         public string ExpandedTelemetryFolder => Environment.ExpandEnvironmentVariables(TelemetryFolder ?? "");

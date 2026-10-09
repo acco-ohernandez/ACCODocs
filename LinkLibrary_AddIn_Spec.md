@@ -417,3 +417,14 @@ or deviated from it — carry them into the production port.
     (ShellExecute fails on Box Drive/OneDrive ReparsePoint folders), quoted "Copy as path"
     targets are unquoted, and an unreachable path shows a friendly status instead of an error
     (and records no recent/telemetry).
+14. **Fallback master + RibbonsShared folder (added 2026-10-08):** new config key
+    `fallbackLibraryPath` (default `C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared\LinkLibrary.master.json`,
+    empty disables) — a local master copy probed when the network `masterLibraryPath` is
+    unreachable or unparseable, going through the same revision compare and cache copy-down;
+    the status line notes "using the local fallback copy". This implements §10's MSI seed-copy
+    cold start. Config probe #1 also MOVED into the same installed `RibbonsShared\` folder
+    (supersedes §4 item 1): one MSI-payload folder holds the shared config and the seed master.
+15. **Config GUI (added 2026-10-08):** `LinkLibraryEditor` gained a Config Editor window —
+    admins edit `LinkLibrary.config.json` through typed, validated fields (atomic camelCase
+    saves, path-reachability check) instead of hand-editing JSON. Old PascalCase copies load
+    fine and convert on save.

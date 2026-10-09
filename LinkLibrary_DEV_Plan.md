@@ -133,15 +133,79 @@ The `BTT-ACCORevit-Ribbons` Claude skill automates the import mechanics. "Done" 
 5. Add `Newtonsoft.Json` is already in production Resources ✔; verify nothing else is missing.
 6. Build every config `-p:Configuration=Debug-<year>` 2023–2027 (never pass
    `TargetFramework`/`RevitVersion` directly; restore per config).
-7. Deployment payload: seed `LinkLibrary.master.json` + shared `LinkLibrary.config.json`
-   (probe #1: `C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\`) into the MSIs; stand up
-   the real master on the network share; point config at it.
+7. Deployment payload: the `RibbonsShared\` folder (probe-#1 `LinkLibrary.config.json` + seed
+   `LinkLibrary.master.json`, which doubles as the offline fallback master) into the MSIs at
+   `C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared\`; stand up the real
+   master on the network share; point config at it (`fallbackLibraryPath` points at the seed).
 8. Two tabs installed on one machine → no crash, second tab's button resolves the pane
    (registration race, spec §3 — untestable in dev).
 9. Signed Release build verified on Revit 2026 (Trend Micro unsigned-DLL launch crash).
 10. Decide where `LinkLibraryEditor` lives for admins (it is NOT part of the Revit MSIs).
 
-## 8. Changelog (dev, all 2026-08-24)
+## 8. Changelog (dev)
+
+### 2026-10-08
+- Config editor in LinkLibraryEditor (fallback test passed; Orlando asked for a GUI for
+  `LinkLibrary.config.json`): new `ConfigEditorWindow` — typed form for all 13 keys (browse
+  buttons for master/fallback, gmail/mailto combo, int range validation, telemetry checkbox),
+  Open/New-from-defaults/Save/Save As with atomic camelCase writes, on-demand **Check Paths**
+  reachability report (unreachable master is saveable by design), dirty guards, Help section
+  added ("The config file": probe locations, env-var rule, Revit-restart reminder).
+  `LinkLibraryConfig.cs` linked into the editor like the models; editor gained `GlobalUsings.cs`
+  (Diagnostics/IO/Reflection — **WindowsDesktop SDK implicit usings exclude System.IO**, a
+  Shapes.Path clash guard). "Config..." button on the main toolbar, works with no library open.
+- Fallback master (Orlando's share-outage test): network `masterLibraryPath` unreachable →
+  `CheckForUpdate` now probes `fallbackLibraryPath` (new config key; default = the installed
+  `RibbonsShared\LinkLibrary.master.json`, the MSI seed per spec §10) through the SAME revision
+  compare + cache copy-down; status line appends "using the local fallback copy"; Offline only
+  when both fail. Config probe #1 moved into `RibbonsShared\` (Orlando's edit, kept — one MSI
+  folder for config + seed). NOTE for testing: the fallback only SHOWS when its revision beats
+  the cache — on a machine with a newer cache, delete
+  `%PROGRAMDATA%\ACCO\RevitLinkLibrary\cache\LinkLibrary.master.json` (Revit closed) to see it.
+- **Editor crash fixed** (Orlando hit it on first real Apply): `BtnApply_Click` read `_selected`
+  AFTER `RefreshTree()`, whose ItemsSource reset fires `SelectedItemChanged(null)` and nulls
+  `_selected` → NRE → unhandled → whole app closed, edits lost. Fix: captured node reference.
+  Plus `App.DispatcherUnhandledException` guard (message, stay open) so no future bug silently
+  closes the editor. **Lesson: any handler that calls RefreshTree must not touch `_selected` after.**
+- Editor round 3 (after Orlando's rev-7/rev-10 file verification): writers now emit camelCase
+  (CamelCasePropertyNamesContractResolver on editor Save + add-in user-file Save/Export —
+  PascalCase was drifting from the spec schema; reads stay case-insensitive); placeholder ids
+  ("…new-group"/"…new-link") regenerate from the real title on Apply, prefix taken from the
+  ACTUAL tree parent (deriving from the old id kept a stale new-group segment); Close File
+  button (unload without restarting); Open now dirty-guards; Help link (top-right) →
+  `EditorHelpWindow` (Apply-vs-Save, revision semantics, permanent ids, vocabulary discipline)
+  with the shared HelpZoom A−/A+ control (HelpZoom.cs linked into the editor project).
+- Editor reorder + UX: ▲/▼ Move Up/Down toolbar buttons (reorder within siblings; display order =
+  file order); `LibraryNode.IsSelected` runtime prop + TreeView container style (with IsExpanded)
+  so rebuilds keep selection/expansion; new nodes come up selected with parent expanded; Ctrl+S
+  saves; Apply/Add status texts now say "remember to Save".
+- Help (option A — built-in, offline): `Forms\HelpWindow.xaml(.cs)` = pane help (tabs, search,
+  Pick Element, export/import, suggest, status-message decoder) + separate
+  `Forms\AddLinkHelpWindow.xaml(.cs)` = dedicated Add Link field-by-field reference (location
+  forms with examples, type behavior, categories, tags, finding command ids via journal
+  Jrn.RibbonEvent lines). Both modeless singletons; the Add Link one is deliberately NOT owned
+  by the modal dialog so it stays interactive beside the form. "Help" hyperlink labels: pane
+  header top-right, Add Link dialog bottom-left. Ribbon tooltip rewritten + `LongDescription`
+  extended tooltip set on the PushButtonData (ButtonDataClass only handles ToolTip). Orlando
+  also added prompticon icons to the button. 4K readability: help windows base font 14 + A−/A+
+  zoom buttons and Ctrl+wheel (shared `Forms\HelpZoom.cs` LayoutTransform scaler, session-wide
+  level shared by both windows, 80–220%); Add Link dialog base font 14 / width 500.
+- Master library rev 5: "Revit Commands" group (7 PostCommand links; old demo entry removed) +
+  "ACCO Resources" group (8 real links from `TestData\MasterLinks.txt`; Box WEB links as url,
+  local `C:\ACCORevit\ACCO` as folder). Committed `ffd7763`.
+- Config-redirect test lesson (Orlando): a content edit WITHOUT a revision bump is invisible by
+  design (revision is the sole version authority); per-year deployed configs are overwritten by
+  that year's next build — durable redirects belong in TestData's dev config or probe #1.
+  Restarting numbering at 1 requires deleting every machine's cache — don't; keep counting up.
+- Add Link dialog: "command" kind added — combo entry, auto-detect for `ID_*` / `CustomCtrl_%...`
+  targets, location label/tooltip updated. User links can now fire Revit commands.
+- Add Link dialog: Category / Sub-category — editable combos listing existing user groups (pick
+  or type-to-create; sub-category cascades from the chosen category); link files under
+  My Links > Category > Sub-category via new `UserLibraryService.EnsureUserGroup` (case-insensitive
+  title match, GUID ids, created groups start expanded). Sub-category without a category is
+  blocked inline. Empty = root, as before.
+
+### 2026-08-24 (initial build-out)
 
 - Phase 0+1: handler copy, round-trip proof, registrar/pane/config; `UserControl` alias gotcha.
 - Single-button refactor (Orlando): `Cmd_ACCODocs` = toggle; self-test moved into pane.

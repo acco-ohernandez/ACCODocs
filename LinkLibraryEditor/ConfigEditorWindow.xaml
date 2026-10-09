@@ -1,0 +1,135 @@
+<Window x:Class="LinkLibraryEditor.ConfigEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Link Library Config Editor"
+        Width="680" Height="780"
+        WindowStartupLocation="CenterOwner"
+        Background="White"
+        FontSize="14">
+    <Window.Resources>
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,14,0,4"/>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,6,0,2"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="4,3"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" BorderBrush="Gainsboro" BorderThickness="0,0,0,1" Padding="10,8">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="Help" VerticalAlignment="Center"
+                           Foreground="#0B6CCB" TextDecorations="Underline" Cursor="Hand"
+                           ToolTip="What each setting does and where this file lives"
+                           MouseLeftButtonUp="Help_Click"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Open..." Padding="10,4" Margin="0,0,6,0" Click="BtnOpen_Click"/>
+                    <Button Content="New (defaults)" Padding="10,4" Margin="0,0,6,0" Click="BtnNew_Click"
+                            ToolTip="Start from the compiled-in defaults"/>
+                    <Button Content="Save" Padding="10,4" Margin="0,0,6,0" Click="BtnSave_Click"/>
+                    <Button Content="Save As..." Padding="10,4" Margin="0,0,16,0" Click="BtnSaveAs_Click"/>
+                    <Button Content="Check Paths" Padding="10,4" Click="BtnCheckPaths_Click"
+                            ToolTip="Test whether the configured files and folders are reachable right now"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Status -->
+        <Border DockPanel.Dock="Bottom" BorderBrush="Gainsboro" BorderThickness="0,1,0,0" Padding="10,6">
+            <TextBlock x:Name="TxtStatus" TextWrapping="Wrap" Foreground="Gray"
+                       Text="Open a LinkLibrary.config.json, or start from New (defaults)."/>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,0,14,14">
+            <StackPanel x:Name="PanelFields" IsEnabled="False">
+
+                <TextBlock Style="{StaticResource Section}" Text="Library sources"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="Master library (network share — the authoritative file everyone reads)"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Browse..." Padding="8,2" Margin="6,0,0,0" Click="BtnBrowseMaster_Click"/>
+                    <TextBox x:Name="TxtMaster" TextChanged="AnyField_Changed"/>
+                </DockPanel>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="Fallback library (installed local seed copy, used when the network master is unreachable)"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Browse..." Padding="8,2" Margin="6,0,0,0" Click="BtnBrowseFallback_Click"/>
+                    <TextBox x:Name="TxtFallback" TextChanged="AnyField_Changed"
+                             ToolTip="Empty disables the fallback. Normal revision rules apply — it only beats the cache when its revision is higher."/>
+                </DockPanel>
+
+                <TextBlock Style="{StaticResource Section}" Text="Local folders (on each user's machine)"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="Cache folder"/>
+                <TextBox x:Name="TxtCache" TextChanged="AnyField_Changed"
+                         ToolTip="%PROGRAMDATA% / %LOCALAPPDATA% expand on each user's machine — keep the variables, don't replace them with literal paths"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="User library folder (favorites, recents, personal links)"/>
+                <TextBox x:Name="TxtUserLib" TextChanged="AnyField_Changed"
+                         ToolTip="%PROGRAMDATA% / %LOCALAPPDATA% expand on each user's machine — keep the variables, don't replace them with literal paths"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="Telemetry folder"/>
+                <TextBox x:Name="TxtTelemetry" TextChanged="AnyField_Changed"
+                         ToolTip="%PROGRAMDATA% / %LOCALAPPDATA% expand on each user's machine — keep the variables, don't replace them with literal paths"/>
+
+                <TextBlock Style="{StaticResource Section}" Text="Suggest a link"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="Recipient (who receives suggestions)"/>
+                <TextBox x:Name="TxtRecipient" TextChanged="AnyField_Changed"/>
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Mail method"/>
+                        <ComboBox x:Name="CmbMailMethod" SelectionChanged="AnyField_Changed">
+                            <ComboBoxItem Content="gmail"/>
+                            <ComboBoxItem Content="mailto"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Subject prefix (for the admin's mail filter)"/>
+                        <TextBox x:Name="TxtSubjectPrefix" TextChanged="AnyField_Changed"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Style="{StaticResource Section}" Text="Behavior"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Refresh check (min)"/>
+                        <TextBox x:Name="TxtRefresh" TextChanged="AnyField_Changed"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="NEW badge (days)"/>
+                        <TextBox x:Name="TxtBadgeDays" TextChanged="AnyField_Changed"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Recents stored"/>
+                        <TextBox x:Name="TxtRecentsStored" TextChanged="AnyField_Changed" ToolTip="0 disables recents"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Style="{StaticResource FieldLabel}" Text="Recents shown"/>
+                        <TextBox x:Name="TxtRecentsShown" TextChanged="AnyField_Changed"/>
+                    </StackPanel>
+                </Grid>
+                <CheckBox x:Name="ChkTelemetry" Content="Enable usage telemetry (local JSONL, collected by the inventory script)"
+                          Margin="0,10,0,0" Checked="AnyField_Changed" Unchecked="AnyField_Changed"/>
+                <TextBlock x:Name="TxtVersionInfo" Margin="0,10,0,0" Foreground="Gray" Text="configVersion: 1"/>
+
+                <TextBlock x:Name="TxtCheckResults" Margin="0,14,0,0" TextWrapping="Wrap"
+                           FontFamily="Consolas" Visibility="Collapsed"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

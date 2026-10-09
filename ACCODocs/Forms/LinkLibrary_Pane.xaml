@@ -77,8 +77,19 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,6">
-            <TextBlock Text="ACCO Link Library"
-                       FontSize="16" FontWeight="SemiBold"/>
+            <DockPanel>
+                <!-- Light blue: readable on Revit's dark AND light pane chrome -->
+                <TextBlock DockPanel.Dock="Right"
+                           Text="Help"
+                           VerticalAlignment="Center"
+                           Foreground="#5B9BD5"
+                           TextDecorations="Underline"
+                           Cursor="Hand"
+                           ToolTip="Open the Link Library help"
+                           MouseLeftButtonUp="HelpPane_Click"/>
+                <TextBlock Text="ACCO Link Library"
+                           FontSize="16" FontWeight="SemiBold"/>
+            </DockPanel>
             <!-- Library state: revision + online/offline/cached (spec section 10, no dialogs) -->
             <TextBlock x:Name="TxtLibraryStatus"
                        FontSize="11"

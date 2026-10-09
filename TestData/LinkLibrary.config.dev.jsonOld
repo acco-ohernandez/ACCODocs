@@ -1,7 +1,6 @@
 {
   "configVersion": 1,
-  "masterLibraryPath": "Y:\\DATABASES\\AccoRevit\\01-ACCO LIBRARY\\ACCORevit ADDINS\\02-ACCORevit Ribbons\\RibbonsShared\\LinkLibrary.master.json",
-  "fallbackLibraryPath": "C:\\ACCORevit\\ACCO\\ACCORevit ADDINS\\02-ACCORevit Ribbons\\RibbonsShared\\LinkLibrary.master.json",
+  "masterLibraryPath": "C:\\Visual Studio Files\\ACCODocs\\TestData\\LinkLibrary.master.json",
   "localCacheFolder": "%PROGRAMDATA%\\ACCO\\RevitLinkLibrary\\cache",
   "userLibraryFolder": "%LOCALAPPDATA%\\ACCO\\RevitLinkLibrary",
   "telemetryFolder": "%PROGRAMDATA%\\ACCO\\RevitLinkLibrary\\usage",

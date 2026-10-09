@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using ACCODocs.Logic.LinkLibrary;
 // WinForms is enabled alongside WPF — disambiguate (and FolderBrowserDialog is WinForms:
 // it works on BOTH net48 and net8, unlike Microsoft.Win32.OpenFolderDialog which is net8-only).
 using ComboBoxItem = System.Windows.Controls.ComboBoxItem;
@@ -24,12 +25,18 @@ namespace ACCODocs.Forms
         }
 
         private readonly ObservableCollection<TagOption> _tagOptions;
+        private readonly List<LibraryNode> _userGroups;   // existing top-level user groups
         private bool _kindManuallySet;
         private bool _addAnywayArmed;   // second Add click confirms a not-found path
 
-        public AddUserLinkWindow(IEnumerable<string> vocabularyTags)
+        public AddUserLinkWindow(IEnumerable<string> vocabularyTags, IEnumerable<LibraryNode> existingUserGroups)
         {
             InitializeComponent();
+
+            _userGroups = (existingUserGroups ?? Enumerable.Empty<LibraryNode>())
+                .Where(node => node.IsGroup)
+                .ToList();
+            CmbCategory.ItemsSource = _userGroups.Select(group => group.Title).ToList();
 
             _tagOptions = new ObservableCollection<TagOption>(
                 (vocabularyTags ?? Enumerable.Empty<string>()).Select(tag => new TagOption { Name = tag }));
@@ -61,6 +68,12 @@ namespace ACCODocs.Forms
         public string LinkKind => (CmbKind.SelectedItem as ComboBoxItem)?.Content as string ?? "url";
         public string LinkDescription =>
             string.IsNullOrWhiteSpace(TxtDescription.Text) ? null : TxtDescription.Text.Trim();
+        /// <summary>Group to file the link under; empty = My Links root.</summary>
+        public string SelectedCategory => CmbCategory.Text.Trim();
+
+        /// <summary>Second-level group; only meaningful when a category is given.</summary>
+        public string SelectedSubCategory => CmbSubCategory.Text.Trim();
+
         public List<string> SelectedTags =>
             _tagOptions.Where(option => option.IsChecked).Select(option => option.Name)
                 .Concat(ParseCustomTags(TxtCustomTags.Text))
@@ -74,6 +87,39 @@ namespace ACCODocs.Forms
                 .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(tag => tag.Trim())
                 .Where(tag => tag.Length > 0);
+        }
+
+        private void HelpAddLink_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            AddLinkHelpWindow.ShowHelp();
+        }
+
+        // ------------------------------------------------------------------ category cascade
+
+        private void CmbCategory_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshSubCategories();
+        }
+
+        private void CmbCategory_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            // Covers a category typed (not picked) that matches an existing group.
+            RefreshSubCategories();
+        }
+
+        private void RefreshSubCategories()
+        {
+            // SelectionChanged fires before the editable combo's Text updates — read the
+            // selection first, falling back to the typed text.
+            string categoryTitle = (CmbCategory.SelectedItem as string) ?? CmbCategory.Text.Trim();
+
+            LibraryNode category = _userGroups.FirstOrDefault(group =>
+                string.Equals(group.Title, categoryTitle, StringComparison.OrdinalIgnoreCase));
+
+            CmbSubCategory.ItemsSource = category?.Children?
+                .Where(node => node.IsGroup)
+                .Select(node => node.Title)
+                .ToList();
         }
 
         // ------------------------------------------------------------------ kind detection
@@ -91,6 +137,11 @@ namespace ACCODocs.Forms
 
         private static string DetectKind(string target)
         {
+            // Revit command ids: built-in journal ids are ID_*, external add-in commands
+            // are CustomCtrl_%... (both resolved by RevitCommandId.LookupCommandId).
+            if (target.StartsWith("ID_", StringComparison.Ordinal) ||
+                target.StartsWith("CustomCtrl_", StringComparison.OrdinalIgnoreCase))
+                return "command";
             if (target.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
                 return "mailto";
             if (target.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
@@ -161,6 +212,13 @@ namespace ACCODocs.Forms
             if (LinkTitle.Length == 0 || target.Length == 0 || target == "https://")
             {
                 TxtValidation.Text = "Both a title and a location are required.";
+                TxtValidation.Visibility = System.Windows.Visibility.Visible;
+                return;
+            }
+
+            if (SelectedSubCategory.Length > 0 && SelectedCategory.Length == 0)
+            {
+                TxtValidation.Text = "Choose or enter a category before a sub-category.";
                 TxtValidation.Visibility = System.Windows.Visibility.Visible;
                 return;
             }

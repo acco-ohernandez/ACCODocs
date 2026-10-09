@@ -32,6 +32,18 @@ namespace LinkLibraryEditor
         public MainWindow()
         {
             InitializeComponent();
+
+            // Ctrl+S saves — Apply stages edits in memory; Save writes the file.
+            PreviewKeyDown += (sender, args) =>
+            {
+                if (args.Key == System.Windows.Input.Key.S &&
+                    (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+                {
+                    args.Handled = true;
+                    BtnSave_Click(this, new RoutedEventArgs());
+                }
+            };
+
             Closing += (s, e) =>
             {
                 if (_dirty &&
@@ -47,6 +59,14 @@ namespace LinkLibraryEditor
 
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
+            // Opening replaces the loaded document — don't silently discard staged edits.
+            if (_dirty &&
+                MessageBox.Show(this, "There are unsaved changes. Open a different file and lose them?",
+                    "Link Library Editor", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                return;
+            }
+
             var dialog = new OpenFileDialog
             {
                 Title = "Open master library",
@@ -101,9 +121,15 @@ namespace LinkLibraryEditor
                 _doc.RevisionDate = DateTime.Now.ToString("yyyy-MM-dd");
 
                 // Atomic write: temp then replace — a killed process never leaves a half file.
+                // camelCase resolver: the schema (spec section 5) is camelCase; without it,
+                // Newtonsoft writes C# PascalCase names (reading is case-insensitive either way).
                 string temp = _path + ".tmp";
                 File.WriteAllText(temp, JsonConvert.SerializeObject(_doc, Formatting.Indented,
-                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                    }));
                 if (File.Exists(_path))
                     File.Replace(temp, _path, null);
                 else
@@ -118,6 +144,39 @@ namespace LinkLibraryEditor
                 MessageBox.Show(this, $"Save failed:\n{ex.Message}", "Link Library Editor",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void BtnCloseFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (_doc == null)
+                return;
+            if (_dirty &&
+                MessageBox.Show(this, "There are unsaved changes. Close the file and lose them?",
+                    "Link Library Editor", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                return;
+            }
+
+            _doc = null;
+            _path = null;
+            _dirty = false;
+            _selected = null;
+            TreeMain.ItemsSource = null;
+            _tagOptions = new ObservableCollection<TagOption>();
+            ListTags.ItemsSource = null;
+            ShowNode(null);
+            TxtStatus.Text = "No file loaded — Open... to begin.";
+        }
+
+        private void BtnConfig_Click(object sender, RoutedEventArgs e)
+        {
+            // Independent of the loaded master — editing the config needs no library open.
+            new ConfigEditorWindow { Owner = this }.ShowDialog();
+        }
+
+        private void Help_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EditorHelpWindow.ShowHelp();
         }
 
         // ------------------------------------------------------------------ tree
@@ -170,18 +229,34 @@ namespace LinkLibraryEditor
 
         private void BtnApply_Click(object sender, RoutedEventArgs e)
         {
-            if (_selected == null)
+            // Work on a captured reference: RefreshTree() below resets the tree's
+            // ItemsSource, which fires SelectedItemChanged(null) and clears _selected —
+            // reading _selected afterwards crashed the whole editor (NRE, found 2026-10-08).
+            LibraryNode node = _selected;
+            if (node == null)
                 return;
 
-            _selected.Title = TxtTitle.Text.Trim();
-            _selected.Description = string.IsNullOrWhiteSpace(TxtDescription.Text) ? null : TxtDescription.Text.Trim();
+            node.Title = TxtTitle.Text.Trim();
 
-            if (!_selected.IsGroup)
+            // A node still carrying its Add-time placeholder slug ("...new-group" /
+            // "...new-link") gets a real id from the real title on Apply. After that,
+            // ids are permanent (spec section 5 — changing one breaks favorites).
+            if (Regex.IsMatch(node.Id ?? "", @"\.new-(group|link)(-\d+)?$") && node.Title.Length > 0)
             {
-                _selected.Kind = (CmbKind.SelectedItem as ComboBoxItem)?.Content as string ?? "url";
-                _selected.Target = TxtTarget.Text.Trim();
-                _selected.Owner = string.IsNullOrWhiteSpace(TxtOwner.Text) ? null : TxtOwner.Text.Trim();
-                _selected.Updated = DateTime.Now.ToString("yyyy-MM-dd");
+                // Prefix from the node's ACTUAL parent in the tree — deriving it from the old
+                // id kept a stale "new-group" segment when the parent was renamed first.
+                string parentId = FindParent(_doc.Groups, node)?.Id ?? "acco";
+                node.Id = MakeUniqueId(parentId, node.Title);
+                TxtId.Text = node.Id;
+            }
+            node.Description = string.IsNullOrWhiteSpace(TxtDescription.Text) ? null : TxtDescription.Text.Trim();
+
+            if (!node.IsGroup)
+            {
+                node.Kind = (CmbKind.SelectedItem as ComboBoxItem)?.Content as string ?? "url";
+                node.Target = TxtTarget.Text.Trim();
+                node.Owner = string.IsNullOrWhiteSpace(TxtOwner.Text) ? null : TxtOwner.Text.Trim();
+                node.Updated = DateTime.Now.ToString("yyyy-MM-dd");
 
                 // Checked vocabulary tags + free-form custom tags. Customs are folded into
                 // the vocabulary's "custom" group so the master stays validation-clean —
@@ -196,7 +271,7 @@ namespace LinkLibraryEditor
                     .Concat(customTags)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-                _selected.Tags = tags.Count > 0 ? tags : null;
+                node.Tags = tags.Count > 0 ? tags : null;
 
                 if (customTags.Count > 0)
                 {
@@ -215,13 +290,14 @@ namespace LinkLibraryEditor
                 foreach (string part in TxtVersions.Text.Split(',', StringSplitOptions.RemoveEmptyEntries))
                     if (int.TryParse(part.Trim(), out int v))
                         versions.Add(v);
-                _selected.RevitVersions = versions.Count > 0 ? versions : null;
+                node.RevitVersions = versions.Count > 0 ? versions : null;
             }
 
             _dirty = true;
+            node.IsSelected = true;   // container style restores selection after the rebuild
             RefreshTree();
-            ShowNode(_selected);   // new custom tags now render as checked checkboxes
-            TxtStatus.Text = $"Applied changes to \"{_selected.Title}\" (unsaved).";
+            ShowNode(node);           // new custom tags now render as checked checkboxes
+            TxtStatus.Text = $"Applied changes to \"{node.Title}\" — remember to Save (Ctrl+S).";
         }
 
         // ------------------------------------------------------------------ add / delete
@@ -260,8 +336,12 @@ namespace LinkLibraryEditor
 
             list.Add(node);
             _dirty = true;
+            if (parent != null)
+                parent.IsExpanded = true;
+            node.IsSelected = true;   // new node comes up selected and visible
             RefreshTree();
-            TxtStatus.Text = $"Added {(isGroup ? "group" : "link")} \"{title}\" under \"{parent?.Title ?? "root"}\" — rename it, then Apply.";
+            ShowNode(node);
+            TxtStatus.Text = $"Added {(isGroup ? "group" : "link")} \"{title}\" under \"{parent?.Title ?? "root"}\" — rename it, Apply, then Save.";
         }
 
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
@@ -282,6 +362,34 @@ namespace LinkLibraryEditor
             RefreshTree();
             ShowNode(null);
             TxtStatus.Text = "Deleted (unsaved).";
+        }
+
+        // ------------------------------------------------------------------ reorder
+
+        private void BtnMoveUp_Click(object sender, RoutedEventArgs e) => MoveSelected(-1);
+        private void BtnMoveDown_Click(object sender, RoutedEventArgs e) => MoveSelected(+1);
+
+        /// <summary>Moves the selected node within its sibling list (display order = file order).</summary>
+        private void MoveSelected(int delta)
+        {
+            LibraryNode node = _selected;
+            if (_doc == null || node == null)
+                return;
+
+            List<LibraryNode> siblings = FindParent(_doc.Groups, node)?.Children ?? _doc.Groups;
+            int currentIndex = siblings.IndexOf(node);
+            int newIndex = currentIndex + delta;
+            if (currentIndex < 0 || newIndex < 0 || newIndex >= siblings.Count)
+                return;   // already at the edge
+
+            siblings.RemoveAt(currentIndex);
+            siblings.Insert(newIndex, node);
+
+            _dirty = true;
+            node.IsSelected = true;   // keep the moved node selected through the rebuild
+            RefreshTree();
+            ShowNode(node);
+            TxtStatus.Text = $"Moved \"{node.Title}\" {(delta < 0 ? "up" : "down")} — remember to Save (Ctrl+S).";
         }
 
         // ------------------------------------------------------------------ validation

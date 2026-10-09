@@ -71,6 +71,54 @@ namespace ACCODocs.Properties
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ACCODocs_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("ACCODocs_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ACCODocs_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("ACCODocs_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ACCODocs_Dark_16x16
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("ACCODocs_Dark_16x16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ACCODocs_Dark_32x32
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("ACCODocs_Dark_32x32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Blue_16
         {
             get

@@ -1,0 +1,90 @@
+<Window x:Class="LinkLibraryEditor.EditorHelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Link Library Editor — Help"
+        Width="620" Height="640"
+        WindowStartupLocation="CenterScreen"
+        Background="White"
+        FontSize="14"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,14,0,4"/>
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" BorderBrush="Gainsboro" BorderThickness="0,1,0,0" Padding="12,8">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="Text size (Ctrl + mouse wheel works too)">
+                    <Button x:Name="BtnZoomOut" Content="A−" Width="34" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TxtZoom" Text="100%" Width="44" VerticalAlignment="Center"
+                               TextAlignment="Center" Foreground="Gray"/>
+                    <Button x:Name="BtnZoomIn" Content="A+" Width="34" Margin="4,0,0,0"/>
+                </StackPanel>
+                <Button Content="Close" Width="80" HorizontalAlignment="Right" IsCancel="True" Click="BtnClose_Click"/>
+            </DockPanel>
+        </Border>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,0,14,14">
+            <StackPanel x:Name="ContentPanel">
+
+                <TextBlock Style="{StaticResource H1}" Text="Link Library Editor"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="This tool edits the shared master library JSON that every user's ACCO Link Library pane in Revit reads. Edit the file on the share (or a copy you'll put there) — users pick up a new version automatically within the hour, or on their next pane open."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Apply vs. Save — the two-step rule"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Apply Changes stages the selected item's edits in memory. Nothing touches the file until you click Save (or press Ctrl+S). Save validates, bumps the revision number, and writes the file atomically — a half-written file can never happen, even if the process dies mid-save."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="The revision number is how Revit knows the library changed. Editing the file by hand WITHOUT bumping the revision means nobody ever sees the change — this editor bumps it for you on every Save."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Resetting the revision back to 1"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Revit only ever moves forward: a master whose revision is lower than (or equal to) what a machine already has cached is ignored — set the file back to 1 and every user keeps seeing their old cached copy forever. The number is never shown to users as anything meaningful, so the normal answer is: don't reset, just keep counting up."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="If you truly must restart at 1 (for example, replacing the master with a brand-new library), the cached copy has to be deleted on EVERY machine that ever loaded the old one: close Revit, delete %PROGRAMDATA%\ACCO\RevitLinkLibrary\cache\LinkLibrary.master.json, then start Revit — with no cache, the pane adopts whatever revision the master declares as its new baseline. On one test machine that's a ten-second job; fleet-wide it needs a deployment script, which is exactly why resetting isn't worth it in production."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Groups and links"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Add Group / Add Link create items under the selected group (or at the top level). New items appear selected — rename them in the panel, then Apply. Use ▲ Move Up / ▼ Move Down to reorder; the tree order here is exactly the order users see in Revit."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Ids are generated from the title and become PERMANENT once real: changing an id breaks every user's favorite pointing at it, so the field is read-only. Renaming a title is always safe."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Link fields"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Kind + Target decide what happens on double-click in Revit: url/video open the browser, file opens the file, folder opens Explorer, mailto drafts an email, and command runs a Revit command (target = a command id such as ID_PURGE_UNUSED). Revit versions limits a link to specific years — empty means all. Description shows as the tooltip and is searchable."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Tags and the vocabulary"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Tags drive search and Pick Element matching in Revit. Check them from the controlled vocabulary; anything typed in the custom-tags box is added to the vocabulary's 'custom' group on Apply, so the list stays authoritative. Resist inventing near-duplicates ('Duct' next to 'Ductwork') — a tidy vocabulary is what keeps search working."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Validate"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Checks for duplicate ids, empty targets, missing kinds, and tags outside the vocabulary. Save runs it automatically and warns before writing a file with issues."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="The config file (Config... button)"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="LinkLibrary.config.json tells every user's pane where the master library lives (network path), where the local fallback/seed copy is, where cache/user/telemetry data goes on each machine, how 'Suggest a link' sends mail, and the refresh/badge/recents numbers. Revit reads it once at startup — after changing it, users need a Revit restart."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="It is looked up in two places, first hit wins: 1) the installed RibbonsShared folder (C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared) — the copy every machine gets via the deployment, edit THIS one for company-wide changes; 2) next to the add-in DLL — a per-machine override for testing. Folder paths may use %PROGRAMDATA% / %LOCALAPPDATA%; they expand on each user's machine, so keep the variables."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Check Paths tests reachability without saving. An unreachable master is still fine to save — when the share is down, users get the local fallback copy, then the cache."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Deleting"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Deleting a link silently removes it from every user's favorites. If a link's address changed, FIX its target instead of deleting and re-adding — the id (and everyone's favorites) survive a fix."/>
+
+                <TextBlock Style="{StaticResource Body}" Margin="0,14,0,0" Foreground="Gray"
+                           Text="Close File unloads the current library; Open... loads another (both warn about unsaved changes)."/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

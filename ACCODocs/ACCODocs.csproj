@@ -79,6 +79,10 @@
 </PropertyGroup>
 
 <ItemGroup>
+	<EmbeddedResource Include="Resources\ACCODocs_16x16.png" />
+	<EmbeddedResource Include="Resources\ACCODocs_32x32.png" />
+	<EmbeddedResource Include="Resources\ACCODocs_Dark_16x16.png" />
+	<EmbeddedResource Include="Resources\ACCODocs_Dark_32x32.png" />
 	<EmbeddedResource Include="Resources\Blue_16.png" />
 	<EmbeddedResource Include="Resources\Blue_32.png" />
 	<EmbeddedResource Include="Resources\Green_16.png" />

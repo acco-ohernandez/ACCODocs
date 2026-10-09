@@ -1,0 +1,80 @@
+<Window x:Class="ACCODocs.Forms.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ACCO Link Library — Help"
+        Width="620" Height="660"
+        WindowStartupLocation="CenterScreen"
+        Background="White"
+        FontSize="14"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,14,0,4"/>
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" BorderBrush="Gainsboro" BorderThickness="0,1,0,0" Padding="12,8">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="Text size (Ctrl + mouse wheel works too)">
+                    <Button x:Name="BtnZoomOut" Content="A−" Width="34" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TxtZoom" Text="100%" Width="44" VerticalAlignment="Center"
+                               TextAlignment="Center" Foreground="Gray"/>
+                    <Button x:Name="BtnZoomIn" Content="A+" Width="34" Margin="4,0,0,0"/>
+                </StackPanel>
+                <Button Content="Close" Width="80" HorizontalAlignment="Right" IsCancel="True" Click="BtnClose_Click"/>
+            </DockPanel>
+        </Border>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,0,14,14">
+            <StackPanel x:Name="ContentPanel">
+
+                <TextBlock x:Name="SectionOverview" Style="{StaticResource H1}" Text="ACCO Link Library"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="A searchable library of ACCO documentation, reference links, and quick Revit commands. Open or close it with the ACCO Docs ribbon button. Content comes from a shared ACCO master library and updates automatically — if the network is unavailable, the pane shows the last copy it cached and says so under the title."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Library tab"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Browse the tree, or type in the search box to get ranked results across titles, descriptions, tags, and web addresses (searching a domain like accoes.com works). Your own links are included in results, marked with a 'My Links' breadcrumb. Clear the box to return to the tree."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Double-click a link to open it. Right-click for Open, Copy link, and Add to favorites. A green NEW badge marks recently added or updated links."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Pick Element"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Click Pick Element to find links related to a model element. If something is already selected, that selection is used; otherwise you'll be prompted to pick. Links are ranked by how well their tags match the element's category, family, type, and system. When nothing matches, the tags that were found are shown with a 'Suggest a link for this' action."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="My Links tab"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Favorites and Recents are automatic: favorite anything with right-click, and every link you open climbs the Recents list. Below them live links you add yourself, organized into your own categories. This tab has its own search box covering just your items."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Right-click your own links to delete them. Favorites point at the live library — if an admin fixes a link's address, your favorite follows automatically."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Adding a link"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Add link... on the My Links tab saves your own links — web pages, files, folders (local, network, or Box), email addresses, even Revit commands — filed into categories you create, with tags and a description. The Add Link window has its own Help link (bottom-left) with a full field-by-field reference."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Export and import"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Export... saves your favorites, recents, and links to a JSON file for backup or sharing. Import... reads such a file and asks how: Merge adds only what you don't already have; Replace all swaps in the file's content (your previous state is backed up first)."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Suggest a link"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Found something everyone should have? Suggest a link... drafts a request to the ConTech team (via mail or copy-to-clipboard) so it can be added to the shared library where everyone benefits."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Status messages"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="'Offline — showing cached copy': the shared master is unreachable; you're seeing the last known content. 'Points to ... not found': the link's drive, share, or Box location isn't available right now — check the connection or sign-in. 'Updated to rev N': new library content just arrived."/>
+
+                <TextBlock Style="{StaticResource Body}" Margin="0,14,0,0" Foreground="Gray"
+                           Text="Questions or problems? Use Suggest a link... on the My Links tab to reach the ConTech team."/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

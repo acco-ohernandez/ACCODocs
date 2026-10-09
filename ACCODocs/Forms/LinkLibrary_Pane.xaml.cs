@@ -111,6 +111,11 @@ namespace ACCODocs.Forms
                 Debug.WriteLine($"[LinkLibrary] {box.Name} got keyboard focus");
         }
 
+        private void HelpPane_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            HelpWindow.ShowHelp();
+        }
+
         public LinkLibraryConfig Config => _config;
 
         /// <summary>
@@ -169,7 +174,7 @@ namespace ACCODocs.Forms
                 UpdateSearchResults();
         }
 
-        private void SetStatus(MasterLibraryService.RefreshStatus status)
+        private void SetStatus(MasterLibraryService.RefreshResult result)
         {
             if (_document == null)
             {
@@ -177,17 +182,22 @@ namespace ACCODocs.Forms
                 return;
             }
 
-            switch (status)
+            // Honest but quiet (spec section 10): say when the local fallback copy answered
+            // because the network master couldn't be reached.
+            string fallbackNote = result.UsedFallback
+                ? " Network master unreachable — using the local fallback copy."
+                : "";
+
+            switch (result.Status)
             {
                 case MasterLibraryService.RefreshStatus.Offline:
-                    // Subtle indicator, no dialog (spec section 10).
                     TxtLibraryStatus.Text = $"Offline — showing cached copy (rev {_document.Revision}).";
                     break;
                 case MasterLibraryService.RefreshStatus.Updated:
-                    TxtLibraryStatus.Text = $"Updated to rev {_document.Revision}.";
+                    TxtLibraryStatus.Text = $"Updated to rev {_document.Revision}.{fallbackNote}";
                     break;
                 default:
-                    TxtLibraryStatus.Text = $"Rev {_document.Revision} — up to date.";
+                    TxtLibraryStatus.Text = $"Rev {_document.Revision} — up to date.{fallbackNote}";
                     break;
             }
         }
@@ -226,7 +236,7 @@ namespace ACCODocs.Forms
                         RenderTree();
                         RenderMyLinks();
                     }
-                    SetStatus(result.Status);
+                    SetStatus(result);
                 }));
             }
             catch (Exception ex)
@@ -519,13 +529,27 @@ namespace ACCODocs.Forms
                 .Distinct()
                 .ToList() ?? new List<string>();
 
-            var dialog = new AddUserLinkWindow(vocabularyTags) { Owner = Window.GetWindow(this) };
+            var dialog = new AddUserLinkWindow(vocabularyTags, _userLibrary.Groups)
+            {
+                Owner = Window.GetWindow(this)
+            };
             if (dialog.ShowDialog() != true)
                 return;
 
+            // File the link under My Links > Category > Sub-category (groups created on
+            // demand with GUID ids); no category = the My Links root, as before.
+            List<LibraryNode> destination = _userLibrary.Groups;
+            if (dialog.SelectedCategory.Length > 0)
+            {
+                LibraryNode category = UserLibraryService.EnsureUserGroup(destination, dialog.SelectedCategory);
+                destination = category.Children;
+                if (dialog.SelectedSubCategory.Length > 0)
+                    destination = UserLibraryService.EnsureUserGroup(destination, dialog.SelectedSubCategory).Children;
+            }
+
             // User-created ids are GUIDs — they can never collide with dotted master ids
             // and must never shadow one (spec section 6).
-            _userLibrary.Groups.Add(new LibraryNode
+            destination.Add(new LibraryNode
             {
                 Id = Guid.NewGuid().ToString(),
                 Title = dialog.LinkTitle,

@@ -16,6 +16,16 @@ namespace ACCODocs.Logic.LinkLibrary
     public class UserLibraryService
     {
         public const string UserFileName = "LinkLibrary.user.json";
+
+        // camelCase on every write — the spec's schemas (sections 5/6) are camelCase, and
+        // without a resolver Newtonsoft writes C# PascalCase names. Reading stays
+        // case-insensitive, so files written before this fix still load.
+        private static readonly Newtonsoft.Json.JsonSerializerSettings WriteSettings =
+            new Newtonsoft.Json.JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            };
         /// <summary>Fallback stored-recents cap; the real value comes from config (maxRecentsStored).</summary>
         public const int DefaultMaxRecents = 20;
 
@@ -89,7 +99,7 @@ namespace ACCODocs.Logic.LinkLibrary
         /// </summary>
         public void Export(UserLibraryDocument doc, string path)
         {
-            File.WriteAllText(path, JsonConvert.SerializeObject(doc, Formatting.Indented));
+            File.WriteAllText(path, JsonConvert.SerializeObject(doc, Formatting.Indented, WriteSettings));
         }
 
         public class ImportCounts
@@ -189,7 +199,7 @@ namespace ACCODocs.Logic.LinkLibrary
                 Directory.CreateDirectory(folder);
 
                 string temp = Path.Combine(folder, UserFileName + ".tmp");
-                File.WriteAllText(temp, JsonConvert.SerializeObject(doc, Formatting.Indented));
+                File.WriteAllText(temp, JsonConvert.SerializeObject(doc, Formatting.Indented, WriteSettings));
 
                 if (File.Exists(UserFilePath))
                     File.Replace(temp, UserFilePath, null);
@@ -218,6 +228,34 @@ namespace ACCODocs.Logic.LinkLibrary
                 .OrderByDescending(r => r.LastUsed, StringComparer.Ordinal)
                 .Take(Math.Max(0, maxRecents))
                 .ToList();
+        }
+
+        /// <summary>
+        /// Finds a user group by title at one level (case-insensitive), creating it when
+        /// missing — the Add Link dialog's Category/Sub-category path resolution. New groups
+        /// get GUID ids (never colliding with dotted master ids) and start expanded so the
+        /// freshly filed link is visible.
+        /// </summary>
+        public static LibraryNode EnsureUserGroup(List<LibraryNode> siblings, string title)
+        {
+            LibraryNode existing = siblings.FirstOrDefault(node =>
+                node.IsGroup && string.Equals(node.Title, title, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
+            {
+                existing.IsExpanded = true;
+                return existing;
+            }
+
+            var group = new LibraryNode
+            {
+                Id = Guid.NewGuid().ToString(),
+                Title = title.Trim(),
+                Children = new List<LibraryNode>(),
+                Source = "user",
+                IsExpanded = true
+            };
+            siblings.Add(group);
+            return group;
         }
 
         /// <summary>Recursive id lookup. Null when unresolvable (dropped silently per spec section 6).</summary>

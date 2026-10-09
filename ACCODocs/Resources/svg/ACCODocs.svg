@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- ACCO Docs (Link Library pane toggle): stacked sheets = library, ACCO-blue bookmark = saved links.
+       Tokenized for the prompticon skill (acco-house style): {{PAPER}} rear sheet, {{FILL}} front sheet,
+       {{NEUTRAL}} outlines, {{ACCENT}} bookmark. Re-render with scripts/rasterize.mjs; never hardcode hex. -->
+  <rect x="3.5" y="7.5" width="15" height="19" rx="1.5" fill="{{PAPER}}" stroke="{{NEUTRAL}}" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="11.5" y="3.5" width="17" height="22" rx="1.5" fill="{{FILL}}" stroke="{{NEUTRAL}}" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M20 3.5 H25.5 V13 L22.75 10.75 L20 13 Z" fill="{{ACCENT}}"/>
+</svg>

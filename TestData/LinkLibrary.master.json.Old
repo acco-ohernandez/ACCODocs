@@ -1,30 +1,11 @@
 {
   "schemaVersion": 1,
-  "revision": 1,
+  "revision": 5,
   "revisionDate": "2026-10-08",
   "tagVocabulary": {
-    "discipline": [
-      "Mechanical",
-      "Plumbing",
-      "Piping",
-      "Sheetmetal",
-      "Electrical",
-      "Structural",
-      "General"
-    ],
-    "category": [
-      "OST_DuctCurves",
-      "OST_PipeCurves",
-      "OST_MechanicalEquipment",
-      "OST_PipeFitting"
-    ],
-    "topic": [
-      "Standards",
-      "Training",
-      "Troubleshooting",
-      "Content",
-      "Workflow"
-    ]
+    "discipline": ["Mechanical", "Plumbing", "Piping", "Sheetmetal", "Electrical", "Structural", "General"],
+    "category": ["OST_DuctCurves", "OST_PipeCurves", "OST_MechanicalEquipment", "OST_PipeFitting"],
+    "topic": ["Standards", "Training", "Troubleshooting", "Content", "Workflow"]
   },
   "groups": [
     {
@@ -33,14 +14,11 @@
       "children": [
         {
           "id": "acco.resources.eng-standards-updates",
-          "title": "ACCO ENG Standards UpdatesTest",
+          "title": "ACCO ENG Standards Updates",
           "description": "Check to see if you've got the latest functions and features.",
           "kind": "url",
           "target": "https://sites.google.com/accoes.com/engineeringstandardsupdates/home?authuser=0",
-          "tags": [
-            "General",
-            "Standards"
-          ],
+          "tags": ["General", "Standards"],
           "added": "2026-10-08"
         },
         {
@@ -49,11 +27,7 @@
           "description": "The hub for change requests to department standards and reference materials.",
           "kind": "url",
           "target": "https://app.smartsheet.com/b/publish?EQBCT=2d0f470f4b904da2a68436c252448ddb",
-          "tags": [
-            "General",
-            "Standards",
-            "Workflow"
-          ],
+          "tags": ["General", "Standards", "Workflow"],
           "added": "2026-10-08"
         },
         {
@@ -62,11 +36,7 @@
           "description": "A place to submit requests for BIM support.",
           "kind": "url",
           "target": "https://app.smartsheet.com/b/publish?EQBCT=acca45ff0b33449f989bc8b65a2994a5",
-          "tags": [
-            "General",
-            "Workflow",
-            "Troubleshooting"
-          ],
+          "tags": ["General", "Workflow", "Troubleshooting"],
           "added": "2026-10-08"
         },
         {
@@ -75,10 +45,7 @@
           "description": "A cataloged list of all the ACCO Revit families that are available.",
           "kind": "url",
           "target": "https://sites.google.com/a/accoes.com/revit/?pli=1",
-          "tags": [
-            "General",
-            "Content"
-          ],
+          "tags": ["General", "Content"],
           "added": "2026-10-08"
         },
         {
@@ -87,11 +54,7 @@
           "description": "Design and drawing references.",
           "kind": "url",
           "target": "https://accoes.app.box.com/folder/133525108832",
-          "tags": [
-            "General",
-            "Content",
-            "Standards"
-          ],
+          "tags": ["General", "Content", "Standards"],
           "added": "2026-10-08"
         },
         {
@@ -100,11 +63,7 @@
           "description": "How-to guide and catalog for speedy plumbing layouts.",
           "kind": "url",
           "target": "https://accoes.app.box.com/file/1151178970546",
-          "tags": [
-            "Plumbing",
-            "Content",
-            "Workflow"
-          ],
+          "tags": ["Plumbing", "Content", "Workflow"],
           "added": "2026-10-08"
         },
         {
@@ -113,10 +72,7 @@
           "description": "A shortcut to all your ACC projects.",
           "kind": "url",
           "target": "https://acc.autodesk.com/projects",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-10-08"
         },
         {
@@ -125,10 +81,7 @@
           "description": "A shortcut to the local library of families.",
           "kind": "folder",
           "target": "C:\\ACCORevit\\ACCO",
-          "tags": [
-            "General",
-            "Content"
-          ],
+          "tags": ["General", "Content"],
           "added": "2026-10-08"
         }
       ]
@@ -147,11 +100,7 @@
               "description": "Approved hanger types, spacing, and detailing rules.",
               "kind": "url",
               "target": "https://www.accoes.com",
-              "tags": [
-                "Piping",
-                "OST_PipeCurves",
-                "Standards"
-              ],
+              "tags": ["Piping", "OST_PipeCurves", "Standards"],
               "added": "2026-08-01",
               "updated": "2026-08-15",
               "owner": "ohernandez@accoes.com"
@@ -162,15 +111,8 @@
               "description": "Fixture exercising the revitVersions filter — must be hidden in Revit 2023/2024.",
               "kind": "url",
               "target": "https://www.accoes.com",
-              "tags": [
-                "Piping",
-                "Standards"
-              ],
-              "revitVersions": [
-                2025,
-                2026,
-                2027
-              ],
+              "tags": ["Piping", "Standards"],
+              "revitVersions": [2025, 2026, 2027],
               "added": "2026-08-20"
             }
           ]
@@ -181,11 +123,7 @@
           "description": "Duct construction standards quick reference.",
           "kind": "file",
           "target": "\\\\server\\share\\standards\\smacna.pdf",
-          "tags": [
-            "Sheetmetal",
-            "OST_DuctCurves",
-            "Standards"
-          ],
+          "tags": ["Sheetmetal", "OST_DuctCurves", "Standards"],
           "added": "2026-07-01"
         }
       ]
@@ -204,13 +142,8 @@
               "description": "Official Autodesk Revit 2025 online help.",
               "kind": "url",
               "target": "https://help.autodesk.com/view/RVT/2025/ENU/",
-              "tags": [
-                "General",
-                "Training"
-              ],
-              "revitVersions": [
-                2025
-              ],
+              "tags": ["General", "Training"],
+              "revitVersions": [2025],
               "added": "2026-08-24"
             },
             {
@@ -219,13 +152,8 @@
               "description": "Official Autodesk Revit 2026 online help.",
               "kind": "url",
               "target": "https://help.autodesk.com/view/RVT/2026/ENU/",
-              "tags": [
-                "General",
-                "Training"
-              ],
-              "revitVersions": [
-                2026
-              ],
+              "tags": ["General", "Training"],
+              "revitVersions": [2026],
               "added": "2026-08-24"
             },
             {
@@ -234,10 +162,7 @@
               "description": "Autodesk technical support, hotfixes, and known issues for Revit.",
               "kind": "url",
               "target": "https://www.autodesk.com/support/technical/product/revit",
-              "tags": [
-                "General",
-                "Troubleshooting"
-              ],
+              "tags": ["General", "Troubleshooting"],
               "added": "2026-08-24"
             },
             {
@@ -246,11 +171,7 @@
               "description": "Official keyboard shortcut guide.",
               "kind": "url",
               "target": "https://www.autodesk.com/shortcuts/revit",
-              "tags": [
-                "General",
-                "Training",
-                "Workflow"
-              ],
+              "tags": ["General", "Training", "Workflow"],
               "added": "2026-08-24"
             }
           ]
@@ -265,10 +186,7 @@
               "description": "Searchable Revit API documentation for every version (revitapidocs.com).",
               "kind": "url",
               "target": "https://www.revitapidocs.com/",
-              "tags": [
-                "General",
-                "Content"
-              ],
+              "tags": ["General", "Content"],
               "added": "2026-08-24"
             },
             {
@@ -277,11 +195,7 @@
               "description": "Jeremy Tammik's Revit API blog — the de facto API knowledge base.",
               "kind": "url",
               "target": "https://thebuildingcoder.typepad.com/",
-              "tags": [
-                "General",
-                "Troubleshooting",
-                "Content"
-              ],
+              "tags": ["General", "Troubleshooting", "Content"],
               "added": "2026-08-24"
             },
             {
@@ -290,11 +204,7 @@
               "description": "Interactive Revit database exploration tool (GitHub).",
               "kind": "url",
               "target": "https://github.com/jeremytammik/RevitLookup",
-              "tags": [
-                "General",
-                "Content",
-                "Workflow"
-              ],
+              "tags": ["General", "Content", "Workflow"],
               "added": "2026-08-24"
             }
           ]
@@ -306,35 +216,12 @@
       "title": "Revit Commands",
       "children": [
         {
-          "id": "revit.commands.revit-shortcuts-doc",
-          "title": "Revit Shortcuts Doc",
-          "description": "This group is for documentation for shortcuts and commnads provided by Autodesk.",
-          "added": "2026-10-08",
-          "children": [
-            {
-              "id": "revit.commands.revit-shortcuts-doc.revit-2023-keyboard-shortcuts",
-              "title": "Revit 2023 Keyboard Shortcuts",
-              "kind": "url",
-              "target": "https://revit.downloads.autodesk.com/download/2023RVT_RTM/Docs/InProd/RLTKeyboardShortcuts.pdf",
-              "tags": [
-                "General",
-                "Training"
-              ],
-              "added": "2026-10-08",
-              "updated": "2026-10-08"
-            }
-          ]
-        },
-        {
           "id": "revit.commands.units",
           "title": "Project Units",
           "description": "Opens Revit's Project Units dialog (UN).",
           "kind": "command",
           "target": "ID_SETTINGS_UNITS",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-08-25"
         },
         {
@@ -343,10 +230,7 @@
           "description": "Opens Purge Unused to remove unused families, types, and styles — run before sharing or archiving a model.",
           "kind": "command",
           "target": "ID_PURGE_UNUSED",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-08-25"
         },
         {
@@ -355,10 +239,7 @@
           "description": "Opens the model warnings list — a quick health check on any project.",
           "kind": "command",
           "target": "ID_REVIEW_WARNINGS",
-          "tags": [
-            "General",
-            "Troubleshooting"
-          ],
+          "tags": ["General", "Troubleshooting"],
           "added": "2026-08-25"
         },
         {
@@ -367,10 +248,7 @@
           "description": "Opens the Materials browser/editor.",
           "kind": "command",
           "target": "ID_SETTINGS_MATERIALS",
-          "tags": [
-            "General",
-            "Content"
-          ],
+          "tags": ["General", "Content"],
           "added": "2026-08-25"
         },
         {
@@ -379,10 +257,7 @@
           "description": "Opens the Worksets dialog (workshared models only).",
           "kind": "command",
           "target": "ID_WORKSETS",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-08-25"
         },
         {
@@ -391,10 +266,7 @@
           "description": "Opens Visibility/Graphics overrides for the active view (VG / VV).",
           "kind": "command",
           "target": "ID_VIEW_CATEGORY_VISIBILITY",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-08-25"
         },
         {
@@ -403,10 +275,7 @@
           "description": "Toggles Thin Lines display (TL) in the active view.",
           "kind": "command",
           "target": "ID_THIN_LINES",
-          "tags": [
-            "General",
-            "Workflow"
-          ],
+          "tags": ["General", "Workflow"],
           "added": "2026-08-25"
         }
       ]
@@ -421,10 +290,7 @@
           "description": "Onboarding video series.",
           "kind": "video",
           "target": "https://www.accoes.com",
-          "tags": [
-            "General",
-            "Training"
-          ],
+          "tags": ["General", "Training"],
           "added": "2026-06-15"
         },
         {
@@ -433,10 +299,7 @@
           "description": "Fixture exercising the mailto kind.",
           "kind": "mailto",
           "target": "mailto:ohernandez@accoes.com",
-          "tags": [
-            "General",
-            "Troubleshooting"
-          ],
+          "tags": ["General", "Troubleshooting"],
           "added": "2026-08-24"
         }
       ]

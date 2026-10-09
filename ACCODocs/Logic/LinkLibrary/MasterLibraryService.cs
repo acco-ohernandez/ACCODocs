@@ -25,6 +25,7 @@ namespace ACCODocs.Logic.LinkLibrary
 
         public string CachePath => Path.Combine(_config.ExpandedLocalCacheFolder, CacheFileName);
         public string MasterPath => _config.ExpandedMasterLibraryPath;
+        public string FallbackPath => _config.ExpandedFallbackLibraryPath;
 
         public enum RefreshStatus
         {
@@ -40,6 +41,8 @@ namespace ACCODocs.Logic.LinkLibrary
         {
             public RefreshStatus Status;
             public LinkLibraryDocument Document;
+            /// <summary>True when the network master was unreachable and the local fallback copy answered.</summary>
+            public bool UsedFallback;
         }
 
         /// <summary>Loads the local cache. Null when missing or corrupt — never throws, never dialogs.</summary>
@@ -59,21 +62,34 @@ namespace ACCODocs.Logic.LinkLibrary
         /// </summary>
         public RefreshResult CheckForUpdate(int? currentRevision)
         {
+            // Network master first; when unreachable or unparseable, the MSI-installed local
+            // fallback/seed copy (spec section 10 cold start). Whichever answers goes through
+            // the same revision compare and cache copy-down.
+            bool usedFallback = false;
             string masterJson = TryReadFile(MasterPath);
             var master = masterJson == null ? null : TryParseJson(masterJson, MasterPath);
+
+            if (master == null && !string.IsNullOrWhiteSpace(FallbackPath))
+            {
+                Debug.WriteLine($"[LinkLibrary] Master unreachable/unreadable at '{MasterPath}' — trying fallback '{FallbackPath}'.");
+                masterJson = TryReadFile(FallbackPath);
+                master = masterJson == null ? null : TryParseJson(masterJson, FallbackPath);
+                usedFallback = master != null;
+            }
+
             if (master == null)
             {
-                Debug.WriteLine($"[LinkLibrary] Master unreachable/unreadable at '{MasterPath}' — offline.");
+                Debug.WriteLine("[LinkLibrary] No master reachable (network or fallback) — offline.");
                 return new RefreshResult { Status = RefreshStatus.Offline };
             }
 
             if (currentRevision.HasValue && master.Revision <= currentRevision.Value)
-                return new RefreshResult { Status = RefreshStatus.UpToDate };
+                return new RefreshResult { Status = RefreshStatus.UpToDate, UsedFallback = usedFallback };
 
             // Copy the master down verbatim (not re-serialized) so the cache is a faithful copy.
             SaveCacheAtomic(masterJson);
-            Debug.WriteLine($"[LinkLibrary] Cache updated to revision {master.Revision}.");
-            return new RefreshResult { Status = RefreshStatus.Updated, Document = master };
+            Debug.WriteLine($"[LinkLibrary] Cache updated to revision {master.Revision}{(usedFallback ? " (from local fallback)" : "")}.");
+            return new RefreshResult { Status = RefreshStatus.Updated, Document = master, UsedFallback = usedFallback };
         }
 
         /// <summary>

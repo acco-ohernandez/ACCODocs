@@ -70,6 +70,10 @@ namespace ACCODocs.Logic.LinkLibrary
         [JsonIgnore]
         public bool IsExpanded { get; set; }
 
+        /// <summary>Runtime only: tree-selection state, same mechanism as IsExpanded — lets a tree rebuild restore the selected node.</summary>
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+
         public bool IsVisibleFor(int revitVersion)
         {
             return RevitVersions == null || RevitVersions.Count == 0 || RevitVersions.Contains(revitVersion);

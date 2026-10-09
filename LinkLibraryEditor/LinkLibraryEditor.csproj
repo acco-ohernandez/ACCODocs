@@ -19,6 +19,8 @@
 	     dependency. Linked, not copied, so the schema can never drift between the two. -->
 	<ItemGroup>
 		<Compile Include="..\ACCODocs\Logic\LinkLibrary\LinkLibraryModels.cs" Link="Shared\LinkLibraryModels.cs" />
+		<Compile Include="..\ACCODocs\Logic\LinkLibrary\LinkLibraryConfig.cs" Link="Shared\LinkLibraryConfig.cs" />
+		<Compile Include="..\ACCODocs\Forms\HelpZoom.cs" Link="Shared\HelpZoom.cs" />
 	</ItemGroup>
 
 </Project>
