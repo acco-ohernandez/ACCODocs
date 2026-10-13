@@ -60,6 +60,12 @@
                 <TextBlock Style="{StaticResource Body}"
                            Text="Add link... on the My Links tab saves your own links — web pages, files, folders (local, network, or Box), email addresses, even Revit commands — filed into categories you create, with tags and a description. The Add Link window has its own Help link (bottom-left) with a full field-by-field reference."/>
 
+                <TextBlock Style="{StaticResource H1}" Text="Command links"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Links marked (command) run a Revit ribbon button — double-clicking one is exactly like clicking that button, and it fires the next moment Revit is idle. They can launch built-in dialogs (Purge Unused, Review Warnings...) or buttons from the ACCO tabs."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="To add your own: the command id comes from the Revit journal — the Add Link window's Help (bottom-left) has the step-by-step. If the status line says the id is unknown, the button's add-in is not installed on this machine (or the button was renamed); 'cannot be posted right now' means the button is currently disabled in Revit."/>
+
                 <TextBlock Style="{StaticResource H1}" Text="Export and import"/>
                 <TextBlock Style="{StaticResource Body}"
                            Text="Export... saves your favorites, recents, and links to a JSON file for backup or sharing. Import... reads such a file and asks how: Merge adds only what you don't already have; Replace all swaps in the file's content (your previous state is backed up first)."/>

@@ -72,11 +72,17 @@
 
                 <TextBlock Style="{StaticResource H1}" Text="The config file (Config... button)"/>
                 <TextBlock Style="{StaticResource Body}"
-                           Text="LinkLibrary.config.json tells every user's pane where the master library lives (network path), where the local fallback/seed copy is, where cache/user/telemetry data goes on each machine, how 'Suggest a link' sends mail, and the refresh/badge/recents numbers. Revit reads it once at startup — after changing it, users need a Revit restart."/>
+                           Text="LinkLibrary.config.json tells every user's pane where the master library lives (network path), where the local fallback/seed copy is, where cache/user/telemetry data goes on each machine, how 'Suggest a link' sends mail (recipient, optional comma-separated CC list, gmail/mailto method, subject prefix), and the refresh/badge/recents numbers. Revit reads it once at startup — after changing it, users need a Revit restart."/>
                 <TextBlock Style="{StaticResource Body}"
                            Text="It is looked up in two places, first hit wins: 1) the installed RibbonsShared folder (C:\ACCORevit\ACCO\ACCORevit ADDINS\02-ACCORevit Ribbons\RibbonsShared) — the copy every machine gets via the deployment, edit THIS one for company-wide changes; 2) next to the add-in DLL — a per-machine override for testing. Folder paths may use %PROGRAMDATA% / %LOCALAPPDATA%; they expand on each user's machine, so keep the variables."/>
                 <TextBlock Style="{StaticResource Body}"
                            Text="Check Paths tests reachability without saving. An unreachable master is still fine to save — when the share is down, users get the local fallback copy, then the cache."/>
+
+                <TextBlock Style="{StaticResource H1}" Text="Command links (kind = command)"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="A command link fires a ribbon button in Revit — built-in dialogs (target = ids like ID_PURGE_UNUSED) or any add-in button, including the ACCO tabs. To capture a button's id: click it once in Revit, open the newest journal (%LOCALAPPDATA%\Autodesk\Revit\Autodesk Revit 20xx\Journals), find the Jrn.RibbonEvent line for the click, and copy everything after 'Execute external command:' as the target. Add-in ids look like CustomCtrl_%CustomCtrl_%ENG Mechanical%Tools%btn_Name; a trailing ':Class.Name' is ignored automatically."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Caveats for the shared library: the id embeds tab/panel/button names, so ribbon renames break these links — re-check command links after any ribbon change. Users without the target add-in installed get a quiet 'unknown command id' status, so consider noting the owning tab in the description."/>
 
                 <TextBlock Style="{StaticResource H1}" Text="Deleting"/>
                 <TextBlock Style="{StaticResource Body}"

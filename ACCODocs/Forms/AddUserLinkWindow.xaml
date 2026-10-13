@@ -45,6 +45,7 @@
                 <ComboBoxItem Content="file"/>
                 <ComboBoxItem Content="folder"/>
                 <ComboBoxItem Content="mailto"/>
+                <ComboBoxItem Content="gmail"/>
                 <ComboBoxItem Content="video"/>
                 <ComboBoxItem Content="command"/>
             </ComboBox>

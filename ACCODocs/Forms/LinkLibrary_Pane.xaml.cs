@@ -798,9 +798,18 @@ namespace ACCODocs.Forms
                     string target = NormalizeTarget(node.Target);
                     Debug.WriteLine($"[LinkLibrary] Opening {node.Kind} '{node.Id}': {target}");
 
-                    if (target.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                        target.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                    if (string.Equals(node.Kind, "gmail", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(node.Kind, "mailto", StringComparison.OrdinalIgnoreCase) ||
                         target.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Mail links: "gmail" kind always opens a Gmail compose window;
+                        // "mailto" kind honors the config mail method (bare mailto on
+                        // browser-Gmail machines opens an empty draft or nothing).
+                        // Node-level Cc/Bcc ride along in either form.
+                        Process.Start(new ProcessStartInfo(BuildEmailUrl(node)) { UseShellExecute = true });
+                    }
+                    else if (target.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                             target.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                     {
                         Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
                     }
@@ -859,12 +868,80 @@ namespace ACCODocs.Forms
         }
 
         /// <summary>
+        /// Builds the URL a mail link opens. "gmail" kind ALWAYS yields a Gmail compose
+        /// URL (the kind is an explicit choice); "mailto" kind yields one only when the
+        /// config mail method is "gmail", otherwise the mailto URI goes to the OS handler.
+        /// The target may be a bare address or a mailto URI with subject/cc/bcc/body query
+        /// params (already percent-encoded — passed through); the node's own Cc/Bcc fields
+        /// are appended in either form.
+        /// </summary>
+        private string BuildEmailUrl(LibraryNode node)
+        {
+            string target = NormalizeTarget(node.Target);
+            string rest = target.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)
+                ? target.Substring("mailto:".Length)
+                : target;
+
+            string address = rest;
+            string query = "";
+            int queryStart = rest.IndexOf('?');
+            if (queryStart >= 0)
+            {
+                address = rest.Substring(0, queryStart);
+                query = rest.Substring(queryStart + 1);
+            }
+
+            string nodeExtras = "";
+            if (!string.IsNullOrWhiteSpace(node.Cc))
+                nodeExtras += "&cc=" + Uri.EscapeDataString(node.Cc.Trim());
+            if (!string.IsNullOrWhiteSpace(node.Bcc))
+                nodeExtras += "&bcc=" + Uri.EscapeDataString(node.Bcc.Trim());
+            // Subject uses a different param name per form: mailto "subject", Gmail "su".
+            string subjectValue = string.IsNullOrWhiteSpace(node.Subject)
+                ? "" : Uri.EscapeDataString(node.Subject.Trim());
+
+            bool useGmail = string.Equals(node.Kind, "gmail", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(_config.SuggestionMailMethod, "gmail", StringComparison.OrdinalIgnoreCase);
+
+            if (!useGmail)
+            {
+                string allQuery = query + nodeExtras +
+                    (subjectValue.Length > 0 ? "&subject=" + subjectValue : "");
+                allQuery = allQuery.TrimStart('&');
+                return allQuery.Length > 0 ? $"mailto:{address}?{allQuery}" : $"mailto:{address}";
+            }
+
+            string url = $"https://mail.google.com/mail/?view=cm&fs=1&to={address}";
+            foreach (string pair in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                int equalsIndex = pair.IndexOf('=');
+                if (equalsIndex <= 0)
+                    continue;
+                string key = pair.Substring(0, equalsIndex).ToLowerInvariant();
+                string value = pair.Substring(equalsIndex + 1);
+                switch (key)
+                {
+                    case "subject": url += "&su=" + value; break;
+                    case "cc": url += "&cc=" + value; break;
+                    case "bcc": url += "&bcc=" + value; break;
+                    case "body": url += "&body=" + value; break;
+                }
+            }
+            return url + nodeExtras + (subjectValue.Length > 0 ? "&su=" + subjectValue : "");
+        }
+
+        /// <summary>
         /// 'command' kind: target is a Revit command id. PostCommand needs a UIApplication,
         /// so it goes through the ExternalEvent like every other API touch.
         /// </summary>
         private void PostRevitCommand(LibraryNode node)
         {
-            string commandId = node.Target;
+            // The journal logs external commands as "id:ImplementingClass" — people copy
+            // the whole payload, but LookupCommandId wants only the id before the colon.
+            string commandId = NormalizeTarget(node.Target);
+            int classSeparator = commandId.IndexOf(':');
+            if (classSeparator > 0 && commandId.StartsWith("CustomCtrl_", StringComparison.OrdinalIgnoreCase))
+                commandId = commandId.Substring(0, classSeparator);
             _handler.HandlerAction = (app) =>
             {
                 string problem = null;

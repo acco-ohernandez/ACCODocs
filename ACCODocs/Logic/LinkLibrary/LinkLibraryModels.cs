@@ -33,10 +33,20 @@ namespace ACCODocs.Logic.LinkLibrary
         public string Title { get; set; }
         public string Description { get; set; }
 
-        /// <summary>url | file | folder | mailto | video | command. Null/empty on groups.</summary>
+        /// <summary>url | file | folder | mailto | gmail | video | command. Null/empty on groups.</summary>
         public string Kind { get; set; }
 
         public string Target { get; set; }
+
+        /// <summary>Prefilled subject for mailto/gmail links. Optional, plain text.</summary>
+        public string Subject { get; set; }
+
+        /// <summary>CC addresses for mailto/gmail links, comma-separated. Optional.</summary>
+        public string Cc { get; set; }
+
+        /// <summary>BCC addresses for mailto/gmail links, comma-separated. Optional.</summary>
+        public string Bcc { get; set; }
+
         public List<string> Tags { get; set; }
 
         /// <summary>Null/omitted = visible in all Revit versions (spec section 5).</summary>

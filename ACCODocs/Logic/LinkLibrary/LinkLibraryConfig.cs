@@ -33,6 +33,9 @@ namespace ACCODocs.Logic.LinkLibrary
         public string TelemetryFolder { get; set; } = @"%PROGRAMDATA%\ACCO\RevitLinkLibrary\usage";
         public string SuggestionRecipient { get; set; } = "";
 
+        /// <summary>CC addresses for suggestion mail, comma-separated. Empty = no CC.</summary>
+        public string SuggestionCc { get; set; } = "";
+
         /// <summary>
         /// How "Suggest a link" opens a mail draft: "mailto" (default OS mail handler)
         /// or "gmail" (Gmail compose URL in the browser — ACCO is a Google Workspace shop).
@@ -102,10 +105,17 @@ namespace ACCODocs.Logic.LinkLibrary
         }
 
         // All path values run through Environment.ExpandEnvironmentVariables (spec section 4).
+        // [JsonIgnore]: computed per-machine — without it, Newtonsoft serializes get-only
+        // properties too, baking one machine's expansions into the shared config file.
+        [JsonIgnore]
         public string ExpandedMasterLibraryPath => Environment.ExpandEnvironmentVariables(MasterLibraryPath ?? "");
+        [JsonIgnore]
         public string ExpandedFallbackLibraryPath => Environment.ExpandEnvironmentVariables(FallbackLibraryPath ?? "");
+        [JsonIgnore]
         public string ExpandedLocalCacheFolder => Environment.ExpandEnvironmentVariables(LocalCacheFolder ?? "");
+        [JsonIgnore]
         public string ExpandedUserLibraryFolder => Environment.ExpandEnvironmentVariables(UserLibraryFolder ?? "");
+        [JsonIgnore]
         public string ExpandedTelemetryFolder => Environment.ExpandEnvironmentVariables(TelemetryFolder ?? "");
     }
 }

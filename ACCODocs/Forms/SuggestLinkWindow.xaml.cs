@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using ACCODocs.Logic.LinkLibrary;
 // WinForms is enabled alongside WPF — disambiguate.
@@ -40,6 +41,17 @@ namespace ACCODocs.Forms
                 : recipient;
         }
 
+        /// <summary>CC list from config: entries trimmed, any mailto: prefixes stripped, comma-joined. Empty = no CC.</summary>
+        private string CcAddresses()
+        {
+            return string.Join(",", (_config.SuggestionCc ?? "")
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(address => address.Trim())
+                .Select(address => address.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)
+                    ? address.Substring("mailto:".Length) : address)
+                .Where(address => address.Length > 0));
+        }
+
         private string BuildSubject()
         {
             string prefix = (_config.SuggestionSubjectPrefix ?? "").Trim();
@@ -70,12 +82,16 @@ namespace ACCODocs.Forms
 
             string subject = Uri.EscapeDataString(BuildSubject());
             string body = Uri.EscapeDataString(BuildBody());
+            string cc = CcAddresses();
+            // Both forms take comma-separated CC lists (Gmail compose + RFC 6068 mailto).
+            string gmailCc = cc.Length > 0 ? $"&cc={Uri.EscapeDataString(cc)}" : "";
+            string mailtoCc = cc.Length > 0 ? $"&cc={Uri.EscapeDataString(cc)}" : "";
 
-            // "gmail" → compose URL in the browser, prefilled To/Subject/Body.
+            // "gmail" → compose URL in the browser, prefilled To/Cc/Subject/Body.
             // "mailto" → whatever the OS default mail handler is.
             string url = string.Equals(_config.SuggestionMailMethod, "gmail", StringComparison.OrdinalIgnoreCase)
-                ? $"https://mail.google.com/mail/?view=cm&fs=1&to={Uri.EscapeDataString(to)}&su={subject}&body={body}"
-                : $"mailto:{to}?subject={subject}&body={body}";
+                ? $"https://mail.google.com/mail/?view=cm&fs=1&to={Uri.EscapeDataString(to)}{gmailCc}&su={subject}&body={body}"
+                : $"mailto:{to}?subject={subject}{mailtoCc}&body={body}";
 
             try
             {
@@ -94,8 +110,10 @@ namespace ACCODocs.Forms
             try
             {
                 string to = RecipientAddress();
+                string cc = CcAddresses();
                 string text =
                     (to.Length > 0 ? $"To: {to}\r\n" : "") +
+                    (cc.Length > 0 ? $"Cc: {cc}\r\n" : "") +
                     $"Subject: {BuildSubject()}\r\n\r\n" +
                     BuildBody();
                 Clipboard.SetText(text);

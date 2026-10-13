@@ -64,7 +64,7 @@
 
                 <TextBlock Style="{StaticResource H1}" Text="Type"/>
                 <TextBlock Style="{StaticResource Body}"
-                           Text="Detected automatically from the Location as you type or browse; override it with the dropdown if needed. The type decides what double-clicking the link does: url and video open the browser, file opens the file in its app, folder opens Explorer, mailto drafts an email, and command runs the Revit command."/>
+                           Text="Detected automatically from the Location as you type or browse; override it with the dropdown if needed. The type decides what double-clicking the link does: url and video open the browser, file opens the file in its app, folder opens Explorer, mailto drafts an email (honoring the deployment's mail method), gmail always opens a Gmail compose window, and command runs the Revit command."/>
 
                 <TextBlock Style="{StaticResource H1}" Text="Category and Sub-category (optional)"/>
                 <TextBlock Style="{StaticResource Body}"
@@ -80,7 +80,19 @@
 
                 <TextBlock Style="{StaticResource H1}" Text="Finding Revit command ids"/>
                 <TextBlock Style="{StaticResource Body}"
-                           Text="Built-in dialogs use ids like ID_PURGE_UNUSED or ID_REVIEW_WARNINGS. Any ribbon button's id — including ACCO add-in buttons — is recorded in the Revit journal file right after you click it (look for lines containing 'Jrn.RibbonEvent'). Paste the id as the Location and the type flips to command automatically."/>
+                           Text="A command link runs a ribbon button — Revit's own, any ACCO tab, or another add-in — exactly as if you clicked it. To capture a button's id:"/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="1.  In Revit, click the button you want to link (once is enough)."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="2.  Open the newest journal file — sort by date in:"/>
+                <TextBlock Style="{StaticResource Mono}" Text="%LOCALAPPDATA%\Autodesk\Revit\Autodesk Revit 20xx\Journals"/>
+                <TextBlock Style="{StaticResource Body}" Margin="0,6,0,6"
+                           Text="3.  Search the file (from the end) for Jrn.RibbonEvent — the line logged right after your click contains the id:"/>
+                <TextBlock Style="{StaticResource Mono}" Text="Execute external command:CustomCtrl_%CustomCtrl_%ENG Mechanical%Tools%btn_...:Class.Name"/>
+                <TextBlock Style="{StaticResource Body}" Margin="0,6,0,6"
+                           Text="4.  Copy everything after 'Execute external command:' and paste it as the Location — the type flips to command automatically. A trailing ':Class.Name' part is journal metadata and is ignored, so copying the whole payload is fine. Built-in dialogs log shorter ids such as ID_PURGE_UNUSED or ID_SETTINGS_UNITS."/>
+                <TextBlock Style="{StaticResource Body}"
+                           Text="Good to know: the id embeds the tab, panel, and button names, so a ribbon rename breaks the link. The button's add-in must be installed on the machine (otherwise the status line says the id is unknown). The command runs when Revit is next idle, and only when the button would currently be enabled — otherwise the status line says it cannot be posted right now."/>
 
                 <TextBlock Style="{StaticResource Body}" Margin="0,14,0,0" Foreground="Gray"
                            Text="Tip: a link worth having is usually worth sharing — use Suggest a link... on the My Links tab to get it added to the shared ACCO library for everyone."/>

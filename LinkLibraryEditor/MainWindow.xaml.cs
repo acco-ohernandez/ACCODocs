@@ -210,6 +210,10 @@ namespace LinkLibraryEditor
                 foreach (ComboBoxItem item in CmbKind.Items)
                     item.IsSelected = (string)item.Content == (node.Kind ?? "url");
                 TxtTarget.Text = node.Target ?? "";
+                TxtMailSubject.Text = node.Subject ?? "";
+                TxtCc.Text = node.Cc ?? "";
+                TxtBcc.Text = node.Bcc ?? "";
+                UpdateMailFieldsVisibility();
                 TxtVersions.Text = node.RevitVersions == null ? "" : string.Join(", ", node.RevitVersions);
                 TxtOwner.Text = node.Owner ?? "";
 
@@ -255,6 +259,9 @@ namespace LinkLibraryEditor
             {
                 node.Kind = (CmbKind.SelectedItem as ComboBoxItem)?.Content as string ?? "url";
                 node.Target = TxtTarget.Text.Trim();
+                node.Subject = string.IsNullOrWhiteSpace(TxtMailSubject.Text) ? null : TxtMailSubject.Text.Trim();
+                node.Cc = string.IsNullOrWhiteSpace(TxtCc.Text) ? null : TxtCc.Text.Trim();
+                node.Bcc = string.IsNullOrWhiteSpace(TxtBcc.Text) ? null : TxtBcc.Text.Trim();
                 node.Owner = string.IsNullOrWhiteSpace(TxtOwner.Text) ? null : TxtOwner.Text.Trim();
                 node.Updated = DateTime.Now.ToString("yyyy-MM-dd");
 
@@ -362,6 +369,19 @@ namespace LinkLibraryEditor
             RefreshTree();
             ShowNode(null);
             TxtStatus.Text = "Deleted (unsaved).";
+        }
+
+        private void CmbKind_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateMailFieldsVisibility();
+        }
+
+        /// <summary>CC/BCC only make sense on mail links — shown for mailto and gmail kinds.</summary>
+        private void UpdateMailFieldsVisibility()
+        {
+            string kind = (CmbKind.SelectedItem as ComboBoxItem)?.Content as string ?? "";
+            PanelMailFields.Visibility =
+                kind == "mailto" || kind == "gmail" ? Visibility.Visible : Visibility.Collapsed;
         }
 
         // ------------------------------------------------------------------ reorder

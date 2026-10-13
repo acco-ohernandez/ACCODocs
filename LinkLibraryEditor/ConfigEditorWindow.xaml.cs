@@ -95,6 +95,7 @@ namespace LinkLibraryEditor
             TxtUserLib.Text = config.UserLibraryFolder ?? "";
             TxtTelemetry.Text = config.TelemetryFolder ?? "";
             TxtRecipient.Text = config.SuggestionRecipient ?? "";
+            TxtCc.Text = config.SuggestionCc ?? "";
             foreach (ComboBoxItem item in CmbMailMethod.Items)
                 item.IsSelected = string.Equals((string)item.Content, config.SuggestionMailMethod, StringComparison.OrdinalIgnoreCase);
             if (CmbMailMethod.SelectedItem == null)
@@ -219,6 +220,7 @@ namespace LinkLibraryEditor
             _config.UserLibraryFolder = TxtUserLib.Text.Trim();
             _config.TelemetryFolder = TxtTelemetry.Text.Trim();
             _config.SuggestionRecipient = TxtRecipient.Text.Trim();
+            _config.SuggestionCc = TxtCc.Text.Trim();
             _config.SuggestionMailMethod = (CmbMailMethod.SelectedItem as ComboBoxItem)?.Content as string ?? "mailto";
             _config.SuggestionSubjectPrefix = TxtSubjectPrefix.Text.Trim();
             _config.RefreshCheckMinutes = refresh;

@@ -144,6 +144,31 @@ The `BTT-ACCORevit-Ribbons` Claude skill automates the import mechanics. "Done" 
 
 ## 8. Changelog (dev)
 
+### 2026-10-13
+- Command-id journal trap (Orlando hit it with btn_SequentialRenumber): the journal logs
+  external commands as "id:ImplementingClass" — pasting the whole payload makes
+  LookupCommandId fail. PostRevitCommand now quote-trims and strips everything from the
+  first colon on CustomCtrl_ ids (both copies), so journal-copied targets work verbatim.
+  Also confirmed: external add-in commands post fine cross-tab when the add-in is loaded.
+- `gmail` kind + per-link subject/cc/bcc (Orlando's call after seeing the trade-off): `LibraryNode`
+  gains `Subject`/`Cc`/`Bcc` (subject maps to mailto `subject=` / Gmail `su=`); pane `BuildEmailUrl(node)` replaces `BuildMailUrl` — gmail kind ALWAYS
+  composes in Gmail, mailto kind stays config-driven, node cc/bcc appended in both forms,
+  target query params (subject/cc/bcc/body) still pass through; dispatch is kind-aware (gmail
+  targets are bare addresses). Editor: gmail in the Kind dropdown + CC/BCC fields shown for
+  mail kinds; Add Link combos gain gmail in both repos; AddLinkHelp Type text updated.
+  JsonIgnore added to config's computed Expanded* properties (they leaked machine-specific
+  paths into editor-saved config files; deployed RibbonsShared copy cleaned).
+- mailto-kind links honor `suggestionMailMethod` (Orlando spotted the gap via the Kind dropdown):
+  `OpenLink` routes `mailto:` targets through new `BuildMailUrl` — "gmail" converts the URI to a
+  Gmail compose URL (subject/cc/bcc/body mapped to su/cc/bcc/body, percent-encoding passes
+  through), "mailto" unchanged. Deliberately NO "gmail" Kind — Kind is content, delivery is
+  config. Both copies patched. Config editor Mail method tooltip documents the wider scope.
+- Suggest-a-link CC (Orlando verified Gmail compose `cc=` works with multiple recipients): new
+  `suggestionCc` config key; `CcAddresses()` in SuggestLinkWindow feeds gmail + mailto URLs and
+  the clipboard `Cc:` line. Config editor gained a CC field. Dev config routing: To gsanchez@,
+  CC psylvia@ + ohernandez@. **Applied to both copies** (sandbox AND the ported BTT Dev_09 files —
+  the two must be kept in sync until the editor moves to production).
+
 ### 2026-10-08
 - Config editor in LinkLibraryEditor (fallback test passed; Orlando asked for a GUI for
   `LinkLibrary.config.json`): new `ConfigEditorWindow` — typed form for all 13 keys (browse

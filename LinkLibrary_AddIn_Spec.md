@@ -428,3 +428,22 @@ or deviated from it — carry them into the production port.
     admins edit `LinkLibrary.config.json` through typed, validated fields (atomic camelCase
     saves, path-reachability check) instead of hand-editing JSON. Old PascalCase copies load
     fine and convert on save.
+16. **Suggestion CC list (added 2026-10-13):** new config key `suggestionCc` (comma-separated
+    addresses, empty = none) — CC'd on every Suggest-a-link draft in both mail methods (Gmail
+    compose `&cc=`, RFC 6068 mailto `&cc=`) and included as a `Cc:` line in the clipboard copy.
+    Dev routing adopted from Orlando's verified test: To gsanchez@, CC psylvia@ + ohernandez@.
+    Applied to BOTH copies (BTT production Dev_09 + sandbox).
+17. **mailto-kind links honor the mail method (added 2026-10-13):** opening a `mailto`-kind
+    library link no longer always shell-executes the raw `mailto:` URI (which opens an empty
+    draft or nothing on browser-Gmail machines). When `suggestionMailMethod` is `"gmail"`, the
+    URI is converted to a Gmail compose URL (to + subject/cc/bcc/body query params mapped to
+    su/cc/bcc/body). `Kind` stays a content concept — there is deliberately NO "gmail" kind;
+    the delivery mechanism is a per-deployment config choice. Applied to both copies.
+18. **`gmail` kind + per-link cc/bcc (added 2026-10-13, Orlando's decision — supersedes the
+    "no gmail kind" note in delta 17):** the §5 kind table gains `gmail` (target = email
+    address; ALWAYS opens a Gmail compose window, regardless of the deployment's mail method),
+    and links gain optional `cc`/`bcc` fields (comma-separated) honored by both mail forms.
+    `mailto` kind keeps honoring `suggestionMailMethod`. The Link Library Editor shows CC/BCC
+    fields when a mail kind is selected; the Add Link dialog offers the gmail kind too.
+    (Later same day: mail links also gained an optional `subject` field — plain text, encoded at
+    open time; mailto `subject=`, Gmail `su=`. Editor shows Subject/CC/BCC together for mail kinds.)

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Link Library Config Editor"
-        Width="680" Height="780"
+        Width="680" Height="800"
         WindowStartupLocation="CenterOwner"
         Background="White"
         FontSize="14">
@@ -76,6 +76,9 @@
                 <TextBlock Style="{StaticResource Section}" Text="Suggest a link"/>
                 <TextBlock Style="{StaticResource FieldLabel}" Text="Recipient (who receives suggestions)"/>
                 <TextBox x:Name="TxtRecipient" TextChanged="AnyField_Changed"/>
+                <TextBlock Style="{StaticResource FieldLabel}" Text="CC (comma-separated, optional)"/>
+                <TextBox x:Name="TxtCc" TextChanged="AnyField_Changed"
+                         ToolTip="Extra addresses copied on every suggestion, e.g. psylvia@accoes.com,ohernandez@accoes.com"/>
                 <Grid Margin="0,6,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -84,7 +87,8 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Style="{StaticResource FieldLabel}" Text="Mail method"/>
-                        <ComboBox x:Name="CmbMailMethod" SelectionChanged="AnyField_Changed">
+                        <ComboBox x:Name="CmbMailMethod" SelectionChanged="AnyField_Changed"
+                                  ToolTip="How mail drafts open — applies to Suggest a link AND to mailto-kind library links. 'gmail' = Gmail compose in the browser (ACCO standard); 'mailto' = the OS default mail app.">
                             <ComboBoxItem Content="gmail"/>
                             <ComboBoxItem Content="mailto"/>
                         </ComboBox>
